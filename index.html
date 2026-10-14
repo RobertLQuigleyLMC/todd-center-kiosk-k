@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Todd Center Directory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Overpass:wght@400;600;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#E6EAED; --panel:#FFFFFF; --ink:#18212B; --muted:#55626F;
+  --plate:#22303E; --plate-ink:#FFFFFF; --red:#A8192C; --red-ink:#FFFFFF;
+  --line:#C9D0D6; --key:#F5F7F8; --focus:#1F6FD1;
+  color-scheme:light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#10151B; --panel:#1A222B; --ink:#EEF2F5; --muted:#9AA8B5;
+    --plate:#2C3B4A; --plate-ink:#FFFFFF; --red:#C8283D; --red-ink:#FFFFFF;
+    --line:#2E3A46; --key:#24303B; --focus:#6AA8FF; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#10151B; --panel:#1A222B; --ink:#EEF2F5; --muted:#9AA8B5;
+  --plate:#2C3B4A; --plate-ink:#FFFFFF; --red:#C8283D; --red-ink:#FFFFFF;
+  --line:#2E3A46; --key:#24303B; --focus:#6AA8FF; color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{
+  margin:0;height:100%;background:var(--bg);color:var(--ink);
+  font-family:"Overpass","Highway Gothic","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  -webkit-user-select:none;user-select:none;touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;overflow:hidden;
+}
+button{font:inherit;color:inherit;cursor:pointer;touch-action:manipulation}
+button:focus-visible{outline:4px solid var(--focus);outline-offset:3px}
+
+.app{height:100%;display:grid;grid-template-rows:auto 1fr auto}
+
+/* Header: the building sign */
+header{
+  display:flex;align-items:flex-end;justify-content:space-between;gap:2rem;
+  padding:clamp(1rem,2.4vw,2.2rem) clamp(1.2rem,3vw,3rem) clamp(.8rem,1.6vw,1.4rem);
+  border-bottom:6px solid var(--red);background:var(--panel);
+}
+.bldg{line-height:.9}
+.bldg h1{margin:0;font-weight:900;font-size:clamp(2.6rem,6vw,5.6rem);letter-spacing:-.02em}
+.bldg p{margin:.5rem 0 0;color:var(--muted);font-size:clamp(1rem,1.5vw,1.4rem);font-weight:600}
+.clock{text-align:right;line-height:1}
+.clock .t{font-weight:800;font-size:clamp(2rem,4vw,3.6rem);font-variant-numeric:tabular-nums}
+.clock .d{color:var(--muted);font-size:clamp(1rem,1.4vw,1.3rem);margin-top:.4rem;font-weight:600}
+
+main{overflow:hidden;position:relative}
+.view{position:absolute;inset:0;overflow-y:auto;padding:clamp(1rem,2.4vw,2.4rem) clamp(1.2rem,3vw,3rem)}
+.hidden{display:none !important}
+
+/* Home */
+.search-launch{
+  width:100%;display:flex;align-items:center;gap:1rem;text-align:left;
+  background:var(--panel);border:3px solid var(--line);border-radius:14px;
+  padding:clamp(1rem,2vw,1.6rem) clamp(1.2rem,2.4vw,2rem);
+  font-size:clamp(1.3rem,2.4vw,2.2rem);color:var(--muted);font-weight:600;
+}
+.search-launch svg{flex:none;width:1.4em;height:1.4em}
+.tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(.8rem,1.6vw,1.4rem);margin-top:clamp(1rem,2vw,1.6rem)}
+.tile{
+  text-align:left;border:0;border-radius:14px;background:var(--plate);color:var(--plate-ink);
+  padding:clamp(1.2rem,2.6vw,2.4rem);min-height:clamp(140px,22vh,260px);
+  display:flex;flex-direction:column;justify-content:space-between;
+}
+.tile.primary{background:var(--red);color:var(--red-ink)}
+.tile b{font-weight:900;font-size:clamp(1.8rem,3.4vw,3.2rem);line-height:1}
+.tile span{font-size:clamp(1rem,1.6vw,1.45rem);opacity:.85;max-width:34ch;line-height:1.35}
+
+/* Sub-views */
+.vhead{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;margin-bottom:1rem}
+.vhead h2{margin:0;font-weight:900;font-size:clamp(1.8rem,3.4vw,3rem)}
+.vhead p{margin:0;color:var(--muted);font-size:clamp(1rem,1.4vw,1.3rem)}
+
+.chips{display:flex;flex-wrap:wrap;gap:.6rem;margin-bottom:1.2rem}
+.chip{border:3px solid var(--line);background:var(--panel);border-radius:999px;padding:.6rem 1.3rem;font-size:clamp(1rem,1.5vw,1.35rem);font-weight:600}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+
+.list{display:flex;flex-direction:column;gap:.6rem}
+.row{
+  display:grid;grid-template-columns:1fr auto;align-items:center;gap:1.4rem;width:100%;text-align:left;
+  background:var(--panel);border:0;border-left:10px solid var(--plate);border-radius:10px;
+  padding:clamp(.8rem,1.4vw,1.2rem) clamp(1rem,1.8vw,1.6rem);
+}
+.row .n{font-weight:800;font-size:clamp(1.3rem,2.1vw,1.9rem);line-height:1.15}
+.row .s{color:var(--muted);font-size:clamp(1rem,1.4vw,1.3rem);margin-top:.2rem;line-height:1.3}
+.room{font-weight:900;font-variant-numeric:tabular-nums;font-size:clamp(1.6rem,3vw,2.8rem);letter-spacing:-.01em;white-space:nowrap}
+.room.ask{font-weight:600;font-size:clamp(.95rem,1.3vw,1.2rem);color:var(--muted);text-align:right;white-space:normal;max-width:16ch;line-height:1.25}
+.row.away{border-left-color:var(--red)}
+.empty{background:var(--panel);border-radius:12px;padding:2rem;font-size:clamp(1.2rem,2vw,1.7rem);line-height:1.4}
+
+/* Detail: room plate + map */
+#v-detail{padding-bottom:clamp(.8rem,1.6vw,1.4rem)}
+.detail{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:clamp(1rem,2.6vw,2.6rem);height:100%;min-height:0}
+.dleft{overflow-y:auto;min-height:0}
+.plate{background:var(--plate);color:var(--plate-ink);border-radius:18px;padding:clamp(1.4rem,2.6vw,2.6rem);border-bottom:14px solid var(--red)}
+.plate .bigroom{font-weight:900;font-size:clamp(3.4rem,8vw,8rem);line-height:.85;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.plate .where{font-size:clamp(1.15rem,1.8vw,1.7rem);margin-top:1rem;opacity:.9;line-height:1.3}
+.plate .dir{font-size:clamp(1.05rem,1.6vw,1.45rem);margin-top:1.1rem;padding-top:1.1rem;border-top:2px solid rgba(255,255,255,.25);line-height:1.4}
+.plate .dir strong{font-weight:800}
+.info{margin-top:clamp(1rem,2vw,1.8rem)}
+.info h2{margin:0;font-weight:900;font-size:clamp(1.8rem,3.2vw,3rem);line-height:1.05}
+.info .title{color:var(--muted);font-size:clamp(1.1rem,1.7vw,1.55rem);margin:.5rem 0 1.1rem;line-height:1.3}
+.info .title:empty{display:none}
+.info dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:.7rem 1.4rem;font-size:clamp(1.1rem,1.6vw,1.45rem)}
+.info dt{color:var(--muted);font-weight:600}
+.info dd{margin:0;font-weight:700;overflow-wrap:anywhere}
+.info .note{margin-top:1.4rem;background:var(--panel);border-radius:12px;padding:1.1rem 1.3rem;font-size:clamp(1rem,1.4vw,1.25rem);line-height:1.45;max-width:46ch}
+.info ul{margin:.6rem 0 0;padding-left:1.2rem;font-size:clamp(1.05rem,1.5vw,1.35rem);line-height:1.5}
+
+.mapcard{background:#FFFFFF;border-radius:16px;display:flex;flex-direction:column;min-height:0;overflow:hidden;border:3px solid var(--line)}
+.floortabs{display:flex;border-bottom:3px solid #D5DBE0}
+.ft{flex:1;border:0;background:#EEF1F3;color:#18212B;font-weight:800;font-size:clamp(1.05rem,1.6vw,1.45rem);padding:.85rem 1rem}
+.ft[aria-pressed="true"]{background:#22303E;color:#FFFFFF}
+.ft .tag{display:inline-block;margin-left:.5rem;background:#A8192C;color:#fff;border-radius:999px;font-size:.72em;padding:.1em .6em;vertical-align:.12em}
+.mapstage{flex:1;min-height:0;position:relative}
+.mapbox{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);height:100%;max-width:100%;aspect-ratio:1600/2079}
+.mapbox img{width:100%;height:100%;display:block;pointer-events:none}
+.pin{position:absolute;transform:translate(-50%,-50%);pointer-events:none}
+.pin.target .dot{width:clamp(28px,2.8vw,42px);height:clamp(28px,2.8vw,42px);border-radius:50%;background:#A8192C;border:5px solid #fff;box-shadow:0 0 0 3px #A8192C}
+.pin.target .ring{position:absolute;inset:-14px;border-radius:50%;border:5px solid #A8192C;animation:ring 1.8s ease-out infinite}
+@keyframes ring{0%{transform:scale(.6);opacity:1}100%{transform:scale(1.7);opacity:0}}
+.pin .lbl{position:absolute;left:50%;bottom:calc(100% + 12px);transform:translateX(-50%);white-space:nowrap;background:#A8192C;color:#fff;font-weight:900;font-size:clamp(.95rem,1.5vw,1.35rem);padding:.25em .65em;border-radius:8px}
+.pin.target.right .lbl{left:auto;right:-6px;transform:none}
+.pin.yah .star{display:block;width:clamp(30px,3vw,44px);height:clamp(30px,3vw,44px);color:#1F5FB8;filter:drop-shadow(0 0 2px #fff) drop-shadow(0 0 2px #fff)}
+.pin.yah .lbl{background:#1F5FB8}
+.pin.elev .lbl{position:static;transform:none;display:inline-block;background:#22303E;font-size:clamp(.8rem,1.1vw,1rem)}
+.maplegend{display:flex;gap:1.4rem;flex-wrap:wrap;padding:.6rem 1rem;border-top:3px solid #D5DBE0;color:#3A4652;font-size:clamp(.85rem,1.15vw,1.05rem);font-weight:600}
+.maplegend i{display:inline-block;width:.9em;height:.9em;border-radius:3px;vertical-align:-.1em;margin-right:.4em}
+.mapx{flex:none;border:0;background:#A8192C;color:#fff;font-weight:800;font-size:clamp(1.05rem,1.6vw,1.45rem);padding:.85rem 1.4rem;display:flex;align-items:center;gap:.55rem}
+.mapx svg{width:1.1em;height:1.1em}
+.mapstage{cursor:zoom-in}
+.mapcard.full{position:fixed;inset:0;z-index:40;border-radius:0;border:0;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+.mapcard.full .mapstage{cursor:default}
+.mapcard.full .ft,.mapcard.full .mapx{font-size:clamp(1.3rem,2vw,1.9rem);padding:1.1rem 1.6rem}
+.mapcard.full .pin .lbl{font-size:clamp(1.2rem,2vw,1.9rem)}
+.mapcard.full .pin.target .dot{width:clamp(36px,3.4vw,56px);height:clamp(36px,3.4vw,56px)}
+.mapcard.full .maplegend{font-size:clamp(1rem,1.4vw,1.3rem)}
+
+.quick{display:flex;gap:clamp(.6rem,1.2vw,1rem);margin-top:clamp(.8rem,1.6vw,1.4rem)}
+.qb{flex:1;border:3px solid var(--line);background:var(--panel);border-radius:12px;padding:clamp(.9rem,1.6vw,1.3rem);font-size:clamp(1.15rem,1.9vw,1.7rem);font-weight:800;text-align:left}
+
+
+/* Home layout + Today's events */
+#v-home{overflow:hidden}
+.homegrid{display:grid;grid-template-columns:minmax(0,1.75fr) minmax(0,1fr);gap:clamp(1rem,2vw,2rem);height:100%;min-height:0}
+.homemain{display:flex;flex-direction:column;min-height:0}
+.homemain .tiles{flex:1;min-height:0}
+.homemain .tile{min-height:0}
+.events-panel{background:var(--panel);border-radius:14px;border-top:10px solid var(--red);display:flex;flex-direction:column;min-height:0;overflow:hidden}
+.ev-head{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;padding:clamp(1rem,1.8vw,1.5rem) clamp(1rem,1.8vw,1.5rem) .6rem}
+.ev-head h2{margin:0;font-weight:900;font-size:clamp(1.6rem,2.6vw,2.4rem);line-height:1}
+.ev-head span{color:var(--muted);font-size:clamp(.85rem,1.1vw,1rem);text-align:right}
+.ev-list{overflow-y:auto;min-height:0;padding:0 clamp(.6rem,1.2vw,1rem) clamp(.6rem,1.2vw,1rem)}
+.ev{display:grid;grid-template-columns:clamp(6.6rem,8.6vw,8.6rem) minmax(0,1fr);gap:1rem;width:100%;text-align:left;border:0;background:transparent;border-bottom:2px solid var(--line);padding:clamp(.8rem,1.3vw,1.1rem) .5rem}
+.ev:last-child{border-bottom:0}
+.ev.noroom{cursor:default}
+.ev-time{font-variant-numeric:tabular-nums}
+.ev-time b{display:block;font-weight:900;font-size:clamp(1.2rem,1.8vw,1.6rem);line-height:1.1}
+.ev-time span{display:block;color:var(--muted);font-size:clamp(.85rem,1.1vw,1rem);margin-top:.2rem}
+.ev.now .ev-time span{color:var(--red);font-weight:800}
+.ev.now{background:color-mix(in srgb,var(--red) 8%,transparent);border-radius:10px}
+.ev-title{font-weight:800;font-size:clamp(1.15rem,1.7vw,1.5rem);line-height:1.2}
+.ev-loc{color:var(--muted);font-size:clamp(1rem,1.3vw,1.2rem);margin-top:.25rem;font-weight:600}
+.ev-map{display:inline-block;margin-left:.6rem;background:var(--plate);color:var(--plate-ink);border-radius:999px;font-size:.8em;padding:.05em .7em;font-weight:800}
+.ev-det{font-size:clamp(.95rem,1.2vw,1.1rem);margin-top:.3rem;line-height:1.35}
+.ev-empty{padding:1rem .5rem;font-size:clamp(1.1rem,1.6vw,1.4rem);color:var(--muted);line-height:1.4}
+/* Search + keyboard */
+.searchbox{display:flex;align-items:center;gap:1rem;background:var(--panel);border:3px solid var(--ink);border-radius:14px;padding:1rem 1.4rem;margin-bottom:1rem;min-height:4.4rem}
+.searchbox .q{font-size:clamp(1.5rem,2.6vw,2.4rem);font-weight:800;min-height:1.2em}
+.searchbox .q:empty::before{content:"Start typing a name, office, or room";color:var(--muted);font-weight:600}
+.caret{display:inline-block;width:3px;height:1.1em;background:var(--red);vertical-align:-.15em;margin-left:2px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.search-wrap{display:grid;grid-template-rows:auto 1fr auto;height:100%;gap:0}
+.search-results{overflow-y:auto;min-height:0;padding-bottom:1rem}
+.kbd{background:var(--panel);border-radius:14px;padding:.8rem;display:flex;flex-direction:column;gap:.5rem}
+.kr{display:flex;gap:.5rem;justify-content:center}
+.k{flex:1 1 0;max-width:7.5rem;min-height:clamp(3.2rem,6vh,4.6rem);border:0;border-radius:10px;background:var(--key);font-size:clamp(1.3rem,2.2vw,2rem);font-weight:800}
+.k:active{background:var(--line)}
+.k.wide{flex:4 1 0;max-width:none}
+.k.mid{flex:1.6 1 0;max-width:12rem;font-size:clamp(1rem,1.6vw,1.4rem)}
+
+/* Footer nav */
+footer{
+  display:flex;align-items:center;justify-content:space-between;gap:1rem;
+  background:var(--panel);border-top:1px solid var(--line);
+  padding:clamp(.6rem,1.2vw,1rem) clamp(1.2rem,3vw,3rem);
+}
+.navbtns{display:flex;gap:.8rem}
+.nb{border:3px solid var(--ink);background:transparent;border-radius:12px;padding:.7rem 1.6rem;font-size:clamp(1.1rem,1.7vw,1.5rem);font-weight:800;display:flex;align-items:center;gap:.6rem}
+.nb.solid{background:var(--ink);color:var(--bg)}
+.nb[disabled]{opacity:.3}
+footer small{color:var(--muted);font-size:clamp(.85rem,1.1vw,1rem);max-width:40ch;text-align:right;line-height:1.35}
+
+/* Attract screen */
+.attract{
+  position:fixed;inset:0;z-index:50;background:var(--plate);color:var(--plate-ink);
+  display:flex;flex-direction:column;justify-content:center;
+  padding:clamp(2rem,6vw,6rem);padding-top:calc(clamp(2rem,6vw,6rem) + env(safe-area-inset-top,0px));
+  padding-bottom:calc(clamp(2rem,6vw,6rem) + env(safe-area-inset-bottom,0px));
+}
+.attract .bar{width:clamp(80px,12vw,180px);height:16px;background:var(--red);margin-bottom:2rem}
+.attract h1{margin:0;font-weight:900;font-size:clamp(4rem,13vw,13rem);line-height:.85;letter-spacing:-.03em}
+.attract p{font-size:clamp(1.4rem,2.8vw,2.6rem);margin:2rem 0 0;max-width:24ch;line-height:1.25;font-weight:600}
+.attract .touch{margin-top:clamp(2rem,5vh,4rem);display:inline-flex;align-items:center;gap:1rem;font-size:clamp(1.2rem,2.2vw,2rem);font-weight:800;border:3px solid currentColor;border-radius:999px;padding:1rem 2rem;align-self:flex-start;animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.55}}
+.attract .clockA{position:absolute;right:clamp(2rem,6vw,6rem);top:calc(clamp(2rem,6vw,6rem) + env(safe-area-inset-top,0px));text-align:right;font-weight:800;font-size:clamp(1.6rem,3vw,3rem);font-variant-numeric:tabular-nums}
+.attract .clockA small{display:block;font-weight:600;font-size:.5em;opacity:.8;margin-top:.4rem}
+
+@media (prefers-reduced-motion:reduce){.caret,.attract .touch,.pin.target .ring{animation:none}}
+@media (max-width:760px){
+  .tiles{grid-template-columns:1fr}
+  .detail{grid-template-columns:1fr !important;height:auto}
+  .mapstage{height:70vh;flex:none}
+  .quick{flex-direction:column}
+  .homegrid{grid-template-columns:1fr;height:auto}
+  #v-home{overflow-y:auto}
+  .events-panel{max-height:none}
+  header{flex-direction:column;align-items:flex-start}
+  .clock{text-align:left}
+  footer small{display:none}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="bldg">
+      <h1>Todd Center</h1>
+      <p>Lake Michigan College, Benton Harbor Campus</p>
+    </div>
+    <div class="clock"><div class="t" id="time"></div><div class="d" id="date"></div></div>
+  </header>
+
+  <main>
+    <section class="view" id="v-home">
+      <div class="homegrid">
+        <div class="homemain">
+      <button class="search-launch" data-go="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg>
+        Search for a person, office, or room number
+      </button>
+      <div class="tiles">
+        <button class="tile primary" data-go="people"><b>Find a person</b><span>Faculty and staff with offices or classes in the Todd Center</span></button>
+        <button class="tile" data-go="offices"><b>Offices &amp; rooms</b><span>Offices, classrooms, study areas, and meeting rooms in the Todd Center</span></button>
+        <button class="tile" data-go="programs"><b>Programs</b><span>Business, Computer Information Systems, Criminal Justice, Esports</span></button>
+        <button class="tile" data-go="campus"><b>Elsewhere on campus</b><span>Financial Aid, Registration, Library, Bookstore, Tutoring</span></button>
+      </div>
+      <div class="quick">
+        <button class="qb" data-go="map">Building map</button>
+        <button class="qb" data-place="restrooms">Restrooms</button>
+        <button class="qb" data-place="elevator">Elevator</button>
+      </div>
+        </div>
+        <aside class="events-panel" aria-label="Today's events">
+          <div class="ev-head"><h2>Today's events</h2><span id="events-status"></span></div>
+          <div class="ev-list" id="events"></div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="view hidden" id="v-list">
+      <div class="vhead"><h2 id="list-title"></h2><p id="list-sub"></p></div>
+      <div class="chips" id="chips"></div>
+      <div class="list" id="list"></div>
+    </section>
+
+    <section class="view hidden" id="v-search">
+      <div class="search-wrap">
+        <div class="searchbox"><div style="flex:1"><span class="q" id="q"></span><span class="caret" aria-hidden="true"></span></div></div>
+        <div class="search-results"><div class="list" id="results"></div></div>
+        <div class="kbd" id="kbd"></div>
+      </div>
+    </section>
+
+    <section class="view hidden" id="v-detail"><div class="detail" id="detail"></div></section>
+  </main>
+
+  <footer>
+    <div class="navbtns">
+      <button class="nb" id="back" disabled>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5 8 12l7 7"/></svg>Back
+      </button>
+      <button class="nb solid" id="home">Home</button>
+    </div>
+    <small>From the LMC employee directory. For help, visit Career &amp; Workforce Education in TC-1215.</small>
+  </footer>
+</div>
+
+<div class="attract" id="attract" role="button" aria-label="Touch to start">
+  <div class="clockA"><span id="timeA"></span><small id="dateA"></small></div>
+  <div class="bar"></div>
+  <h1>Todd<br>Center</h1>
+  <p>Find a classroom, office, or instructor.</p>
+  <span class="touch">Touch anywhere to start</span>
+</div>
+
+<script src="data.js"></script>
+<script>
+if (typeof PEOPLE === "undefined" || typeof ROOMS === "undefined"){
+  document.body.innerHTML = '<div style="font:600 1.6rem/1.5 system-ui,sans-serif;padding:3rem;max-width:40ch">The kiosk could not read <b>data.js</b>. The most recent edit to that file has a typo. Undo it in GitHub (History, then revert) and the kiosk will recover.</div>';
+  throw new Error("data.js missing or invalid");
+}
+/* ========================================================= */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const byName = (a,b) => a.name.split(" ").slice(-1)[0].localeCompare(b.name.split(" ").slice(-1)[0]) || a.name.localeCompare(b.name);
+const locOf = item => item && (item.loc ? ROOMS[item.loc] : (item.room ? ROOMS[item.room.replace(/^TC-/,"")] : null));
+
+const ALL = [
+  ...PEOPLE.map(p => ({...p, kind:"person"})),
+  ...OFFICES.map(o => ({...o, kind:"office"})),
+  ...PLACES.map(p => ({...p, kind:"place"})),
+  ...CAMPUS.map(c => ({...c, kind:"campus", title:c.where}))
+];
+
+let stack = [];
+let current = null;
+let query = "";
+let progFilter = "Business";
+
+function show(id){
+  document.querySelectorAll(".view").forEach(v => v.classList.add("hidden"));
+  const v = $("#v-"+id); v.classList.remove("hidden"); v.scrollTop = 0;
+}
+function go(state, push=true){
+  if (push && current) stack.push(current);
+  current = state;
+  render();
+  $("#back").disabled = stack.length === 0;
+}
+function back(){ if (stack.length){ current = stack.pop(); render(); $("#back").disabled = stack.length === 0; } }
+function goHome(){ stack = []; current = {view:"home"}; query = ""; render(); $("#back").disabled = true; }
+
+function roomCell(item){
+  if (item.show) return `<span class="room">${esc(item.show)}</span>`;
+  if (item.room) return `<span class="room">${esc(item.room)}</span>`;
+  if (item.kind === "campus") return `<span class="room ask">${esc(item.where.split(",")[0])}</span>`;
+  return `<span class="room ask">Ask at ${HELP_DESK}</span>`;
+}
+function rowHTML(item, i){
+  const sub = item.kind === "campus" ? item.where : item.title;
+  return `<button class="row${item.kind==="campus"?" away":""}" data-i="${i}">
+    <div><div class="n">${esc(item.name)}</div><div class="s">${esc(sub)}</div></div>${roomCell(item)}</button>`;
+}
+function bindRows(container, items){
+  container.querySelectorAll(".row").forEach(r => r.addEventListener("click", () => go({view:"detail", item:items[+r.dataset.i]})));
+}
+
+function renderList(title, sub, items, chips){
+  show("list");
+  $("#list-title").textContent = title;
+  $("#list-sub").textContent = sub;
+  const ch = $("#chips");
+  if (chips){
+    ch.classList.remove("hidden");
+    ch.innerHTML = PROGRAMS.map(p => `<button class="chip" aria-pressed="${p===progFilter}" data-p="${p}">${esc(PROGRAM_LABEL[p])}</button>`).join("");
+    ch.querySelectorAll(".chip").forEach(c => c.addEventListener("click", () => { progFilter = c.dataset.p; current.prog = progFilter; render(); }));
+  } else ch.classList.add("hidden");
+  const L = $("#list");
+  L.innerHTML = items.map(rowHTML).join("");
+  bindRows(L, items);
+}
+
+/* ---------- Map ---------- */
+const pct = (v, a, b) => ((v - a) / (b - a) * 100).toFixed(2) + "%";
+function pinStyle(p){ return `left:${pct(p.x,PLAN_CROP.x0,PLAN_CROP.x1)};top:${pct(p.y,PLAN_CROP.y0,PLAN_CROP.y1)}`; }
+
+function mapHTML(floor, target, targetLabel, noElev){
+  const tFloor = target ? target.floor : null;
+  const tabs = [1,2].map(f => `<button class="ft" data-floor="${f}" aria-pressed="${f===floor}">${FLOOR_NAME[f]}${f===tFloor?'<span class="tag">Destination</span>':''}${f===YOU_ARE_HERE.floor && f!==tFloor?'<span class="tag" style="background:#1F5FB8">You are here</span>':''}</button>`).join("");
+  let pins = "";
+  if (target && !noElev && target.floor !== YOU_ARE_HERE.floor){
+    const e = ROOMS["ELEV"+floor];
+    pins += `<div class="pin elev" style="${pinStyle(e)}"><span class="lbl">Elevator</span></div>`;
+  }
+  if (YOU_ARE_HERE.floor === floor){
+    pins += `<div class="pin yah" style="${pinStyle(YOU_ARE_HERE)}"><svg class="star" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.6 7L12 17.2 5.8 20.9l1.6-7L2 9.2l7.1-.6z"/></svg><span class="lbl">${esc(YOU_ARE_HERE.label)}</span></div>`;
+  }
+  if (target && tFloor === floor){
+    const right = target.x > 84 ? " right" : "";
+    pins += `<div class="pin target${right}" style="${pinStyle(target)}"><span class="ring"></span><div class="dot"></div><span class="lbl">${esc(targetLabel)}</span></div>`;
+  }
+  const full = !!(current && current.full);
+  const icon = full
+    ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>'
+    : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>';
+  return `<div class="mapcard${full ? " full" : ""}">
+    <div class="floortabs">${tabs}<button class="mapx" id="mapx">${icon}${full ? "Close map" : "Full screen"}</button></div>
+    <div class="mapstage"><div class="mapbox"><img alt="${FLOOR_NAME[floor]} plan of the Todd Center" src="${FLOOR_IMG[floor]}">${pins}</div></div>
+    <div class="maplegend"><span><i style="background:#A8192C"></i>Destination</span><span><i style="background:#1F5FB8"></i>You are here</span><span><i style="background:#F4B6B6"></i>Severe weather shelter</span></div>
+  </div>`;
+}
+function bindTabs(){
+  document.querySelectorAll(".ft").forEach(b => b.addEventListener("click", () => { current.floor = +b.dataset.floor; render(); }));
+  const x = $("#mapx");
+  if (x) x.addEventListener("click", () => { current.full = !current.full; render(); });
+  const st = document.querySelector(".mapstage");
+  if (st && !current.full) st.addEventListener("click", () => { current.full = true; render(); });
+}
+
+function directions(loc){
+  if (!loc) return "";
+  if (loc.floor === YOU_ARE_HERE.floor) return `<strong>${FLOOR_NAME[loc.floor]} (this floor).</strong> ${esc(loc.area)}`;
+  return `<strong>${FLOOR_NAME[loc.floor]}.</strong> Take the elevator or the spiral stairs in the lobby. ${esc(loc.area)}`;
+}
+
+function renderDetail(item){
+  show("detail");
+  const away = item.kind === "campus";
+  if (item.multi && current.floor == null) current.floor = YOU_ARE_HERE.floor;
+  const loc = item.multi ? ROOMS[item.multi + current.floor] : locOf(item);
+  let plate;
+  if (item.show){
+    plate = `<div class="bigroom" style="font-size:clamp(2.8rem,6vw,6rem)">${esc(item.show)}</div><div class="where">Todd Center</div>`;
+  } else if (item.room){
+    plate = `<div class="bigroom">${esc(item.room)}</div>
+      <div class="where">${away ? esc(item.where) + ". This office is not in the Todd Center." : "Todd Center"}</div>`;
+  } else if (away){
+    plate = `<div class="bigroom" style="font-size:clamp(2.2rem,4.4vw,4rem);line-height:1">${esc(item.where)}</div>
+      <div class="where">This office is not in the Todd Center.</div>`;
+  } else {
+    plate = `<div class="bigroom">${HELP_DESK}</div>
+      <div class="where">No office is listed. Career &amp; Workforce Education in ${HELP_DESK} can help you reach this person.</div>`;
+  }
+  const helpLoc = (!item.room && item.kind === "person") ? ROOMS[HELP_DESK.replace("TC-","")] : null;
+  const mapLoc = loc || helpLoc;
+  const custom = item.directions ? esc(item.directions) : "";
+  const dir = custom || (item.multi ? `<strong>On both floors.</strong> ${esc(mapLoc.area)}` : (!away ? directions(mapLoc) : ""));
+  if (dir) plate += `<div class="dir">${dir}</div>`;
+
+  let dl = "";
+  if (item.phone) dl += `<dt>Phone</dt><dd>${esc(item.phone)}</dd>`;
+  if (item.email) dl += `<dt>Email</dt><dd>${esc(item.email)}</dd>`;
+  if (item.kind === "person" && item.programs && item.programs.length)
+    dl += `<dt>Program</dt><dd>${item.programs.map(p => esc(PROGRAM_LABEL[p])).join(", ")}</dd>`;
+  const note = item.kind === "person"
+    ? `<div class="note">Office hours change each semester. Check the schedule posted outside the office or send an email to set a time.</div>` : "";
+
+  const left = `<div class="dleft"><div class="plate">${plate}</div>
+    <div class="info"><h2>${esc(item.name)}</h2><div class="title">${esc(away ? "" : item.title)}</div>
+    ${dl ? `<dl>${dl}</dl>` : ""}${note}</div></div>`;
+
+  if (mapLoc){
+    if (current.floor == null) current.floor = mapLoc.floor;
+    const label = item.show || (item.room || HELP_DESK);
+    $("#detail").innerHTML = left + mapHTML(current.floor, mapLoc, label, !!item.multi);
+    $("#detail").style.gridTemplateColumns = "";
+    bindTabs();
+  } else {
+    $("#detail").innerHTML = left;
+    $("#detail").style.gridTemplateColumns = "minmax(0,1fr)";
+  }
+}
+
+function renderMap(){
+  show("detail");
+  if (current.floor == null) current.floor = YOU_ARE_HERE.floor;
+  const left = `<div class="dleft"><div class="plate"><div class="bigroom" style="font-size:clamp(2.8rem,6vw,6rem)">Building map</div>
+    <div class="where">Todd Center, ground and second floors</div>
+    <div class="dir">Room numbers starting with 1 are on the ground floor. Room numbers starting with 2 are on the second floor. Take the elevator or the spiral stairs in the lobby between floors.</div></div>
+    <div class="info"><h2>What's where</h2><ul>
+      <li><b>Ground floor:</b> Career &amp; Workforce Education offices (1201 to 1215), Student Commons, classrooms 1303 to 1413</li>
+      <li><b>Second floor:</b> faculty offices (2202 to 2216), Financial Services (2301), Study / TLC Lab, classrooms 2107 to 2413</li>
+      <li><b>Restrooms:</b> north wing on both floors</li></ul></div></div>`;
+  $("#detail").innerHTML = left + mapHTML(current.floor, null, "");
+  $("#detail").style.gridTemplateColumns = "";
+  bindTabs();
+}
+
+function score(item, q){
+  const hay = [item.name, item.title, item.room, item.where, item.keywords, (item.programs||[]).join(" ")].join(" ").toLowerCase();
+  const terms = q.toLowerCase().split(/\s+/).filter(Boolean);
+  if (!terms.every(t => hay.includes(t) || hay.replace(/-/g,"").includes(t.replace(/-/g,"")))) return -1;
+  let s = 0;
+  const n = item.name.toLowerCase();
+  terms.forEach(t => { if (n.startsWith(t)) s += 5; if (n.split(" ").some(w => w.startsWith(t))) s += 3; });
+  if (item.kind === "person" || item.kind === "office") s += 2;
+  if (item.kind === "place") s += 1;
+  return s;
+}
+function renderSearch(){
+  show("search");
+  $("#q").textContent = query;
+  const R = $("#results");
+  if (!query.trim()){
+    R.innerHTML = `<div class="empty">Type a last name, an office like "Foundation," or a room number like "2214."</div>`;
+    return;
+  }
+  const items = ALL.map(i => [score(i, query), i]).filter(x => x[0] >= 0).sort((a,b) => b[0]-a[0] || a[1].name.localeCompare(b[1].name)).map(x => x[1]);
+  if (!items.length){
+    R.innerHTML = `<div class="empty">Nothing matches "${esc(query)}." Check the spelling, try fewer letters, or ask at Career &amp; Workforce Education in ${HELP_DESK}.</div>`;
+    return;
+  }
+  R.innerHTML = items.map(rowHTML).join("");
+  bindRows(R, items);
+}
+
+function buildKeyboard(){
+  const rows = ["1234567890","QWERTYUIOP","ASDFGHJKL-","ZXCVBNM"];
+  let h = rows.map(r => `<div class="kr">${[...r].map(c => `<button class="k" data-k="${c}">${c}</button>`).join("")}</div>`).join("");
+  h += `<div class="kr"><button class="k mid" data-k="CLEAR">Clear</button><button class="k wide" data-k=" ">Space</button><button class="k mid" data-k="DEL" aria-label="Delete">Delete</button></div>`;
+  $("#kbd").innerHTML = h;
+  $("#kbd").addEventListener("click", e => {
+    const b = e.target.closest(".k"); if (!b) return;
+    const k = b.dataset.k;
+    if (k === "DEL") query = query.slice(0,-1);
+    else if (k === "CLEAR") query = "";
+    else if (query.length < 40) query += k.toLowerCase();
+    renderSearch();
+  });
+}
+
+function render(){
+  const s = current;
+  if (s.view === "home") show("home");
+  else if (s.view === "search") renderSearch();
+  else if (s.view === "detail") renderDetail(s.item);
+  else if (s.view === "map") renderMap();
+  else if (s.view === "people"){
+    renderList("Find a person", "Sorted by last name", PEOPLE.map(p => ({...p, kind:"person"})).sort(byName));
+  } else if (s.view === "offices"){
+    const items = [...OFFICES.map(o => ({...o, kind:"office"})), ...PLACES.map(p => ({...p, kind:"place"}))];
+    renderList("Offices & rooms", "Everything in the Todd Center", items);
+  } else if (s.view === "programs"){
+    if (s.prog) progFilter = s.prog;
+    const items = PEOPLE.filter(p => p.programs.includes(progFilter)).map(p => ({...p, kind:"person"})).sort(byName);
+    renderList("Programs", "Faculty and staff by program", items, true);
+  } else if (s.view === "campus"){
+    renderList("Elsewhere on campus", "These offices are in other buildings", CAMPUS.map(c => ({...c, kind:"campus", title:c.where})));
+  }
+}
+
+document.querySelectorAll("[data-go]").forEach(b => b.addEventListener("click", () => {
+  const v = b.dataset.go;
+  if (v === "search") query = "";
+  go({view:v, prog: v === "programs" ? "Business" : undefined});
+}));
+document.querySelectorAll("[data-place]").forEach(b => b.addEventListener("click", () => {
+  const item = PLACES.find(p => p.id === b.dataset.place);
+  go({view:"detail", item:{...item, kind:"place"}});
+}));
+$("#back").addEventListener("click", back);
+$("#home").addEventListener("click", goHome);
+
+/* Clock */
+function tick(){
+  const d = new Date();
+  const t = d.toLocaleTimeString([], {hour:"numeric", minute:"2-digit"});
+  const ds = d.toLocaleDateString([], {weekday:"long", month:"long", day:"numeric"});
+  $("#time").textContent = t; $("#date").textContent = ds;
+  $("#timeA").textContent = t; $("#dateA").textContent = ds;
+}
+tick(); setInterval(tick, 10000);
+
+/* =========================================================
+   TODAY'S EVENTS
+   Paste the "Publish to web" CSV link of the events Google
+   Sheet below. Columns: Date, Start, End, Event, Location, Details
+   ========================================================= */
+const EVENTS_CACHE_KEY = "toddKioskEvents";
+
+let EVENTS = [];          // all rows from the sheet
+let eventsUpdated = null; // Date of last successful load
+let eventsError = "";
+
+function parseCSV(text){
+  const rows = []; let row = [], f = "", q = false;
+  for (let i = 0; i < text.length; i++){
+    const c = text[i];
+    if (q){
+      if (c === '"' && text[i+1] === '"'){ f += '"'; i++; }
+      else if (c === '"') q = false;
+      else f += c;
+    } else if (c === '"') q = true;
+    else if (c === ",") { row.push(f); f = ""; }
+    else if (c === "\n" || c === "\r"){
+      if (c === "\r" && text[i+1] === "\n") i++;
+      row.push(f); rows.push(row); row = []; f = "";
+    } else f += c;
+  }
+  if (f !== "" || row.length) { row.push(f); rows.push(row); }
+  return rows.filter(r => r.some(v => v.trim() !== ""));
+}
+
+function parseDate(s){
+  s = (s || "").trim();
+  let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if (m) return new Date(+m[1], +m[2]-1, +m[3]);
+  m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})/);
+  if (m){ const y = +m[3] < 100 ? 2000 + +m[3] : +m[3]; return new Date(y, +m[1]-1, +m[2]); }
+  const d = new Date(s); return isNaN(d) ? null : new Date(d.getFullYear(), d.getMonth(), d.getDate());
+}
+function parseTime(s){
+  s = (s || "").trim().toLowerCase().replace(/\./g, "");
+  if (!s) return null;
+  if (s === "noon") return 720;
+  const m = s.match(/^(\d{1,2})(?::(\d{2}))?(?::\d{2})?\s*(am|pm|a|p)?$/);
+  if (!m) return null;
+  let h = +m[1]; const min = +(m[2] || 0); const ap = m[3];
+  if (ap && ap[0] === "p" && h < 12) h += 12;
+  if (ap && ap[0] === "a" && h === 12) h = 0;
+  return h * 60 + min;
+}
+function fmtTime(mins){
+  if (mins == null) return "";
+  let h = Math.floor(mins / 60), m = mins % 60, ap = h >= 12 ? "PM" : "AM";
+  h = h % 12 || 12;
+  return `${h}:${String(m).padStart(2,"0")} ${ap}`;
+}
+
+function rowsToEvents(rows){
+  if (!rows.length) return [];
+  const head = rows[0].map(h => h.trim().toLowerCase());
+  const col = (...names) => head.findIndex(h => names.includes(h));
+  const iD = col("date"), iS = col("start","start time","time"), iE = col("end","end time"),
+        iT = col("event","title","name"), iL = col("location","room","where"), iX = col("details","description","notes");
+  if (iD < 0 || iT < 0) throw new Error("The sheet needs at least a Date column and an Event column.");
+  return rows.slice(1).map(r => {
+    const date = parseDate(r[iD]);
+    return date && (r[iT] || "").trim() ? {
+      date: date.toDateString(),
+      start: iS >= 0 ? parseTime(r[iS]) : null,
+      end: iE >= 0 ? parseTime(r[iE]) : null,
+      title: r[iT].trim(),
+      location: iL >= 0 ? (r[iL] || "").trim() : "",
+      details: iX >= 0 ? (r[iX] || "").trim() : ""
+    } : null;
+  }).filter(Boolean);
+}
+
+function roomFromLocation(loc){
+  const m = (loc || "").match(/\b(?:TC[-\s]?)?([12]\d{3})\b/i);
+  return m && ROOMS[m[1]] ? m[1] : null;
+}
+
+function todaysEvents(){
+  const now = new Date(), today = now.toDateString(), mins = now.getHours()*60 + now.getMinutes();
+  return EVENTS.filter(e => e.date === today)
+    .filter(e => e.end == null ? (e.start == null || e.start + 60 > mins) : e.end > mins)
+    .sort((a,b) => (a.start ?? -1) - (b.start ?? -1))
+    .map(e => ({...e, now: e.start != null && e.start <= mins}));
+}
+
+function renderEvents(){
+  const box = $("#events"); if (!box) return;
+  const list = todaysEvents();
+  const today = EVENTS.filter(e => e.date === new Date().toDateString()).length;
+  let h = "";
+  if (!EVENTS_CSV_URL && !EVENTS.length){
+    h = `<div class="ev-empty">Events will show here once the events sheet is connected.</div>`;
+  } else if (!list.length){
+    h = `<div class="ev-empty">${today ? "That's all for today. Check back tomorrow." : "No events are scheduled in the Todd Center today."}</div>`;
+  } else {
+    h = list.map((e, i) => {
+      const room = roomFromLocation(e.location);
+      const time = e.start == null ? "All day" : fmtTime(e.start);
+      const until = e.end != null ? `until ${fmtTime(e.end)}` : "";
+      return `<button class="ev${e.now ? " now" : ""}${room ? "" : " noroom"}" data-ev="${i}" ${room ? "" : "tabindex=\"-1\""}>
+        <div class="ev-time"><b>${esc(time)}</b><span>${e.now ? "Happening now" : esc(until)}</span></div>
+        <div class="ev-body"><div class="ev-title">${esc(e.title)}</div>
+          ${e.location ? `<div class="ev-loc">${esc(e.location)}${room ? '<span class="ev-map">Map</span>' : ""}</div>` : ""}
+          ${e.details ? `<div class="ev-det">${esc(e.details)}</div>` : ""}</div>
+      </button>`;
+    }).join("");
+  }
+  box.innerHTML = h;
+  box.querySelectorAll(".ev").forEach(b => b.addEventListener("click", () => {
+    const e = list[+b.dataset.ev]; const room = roomFromLocation(e.location);
+    if (!room) return;
+    go({view:"detail", item:{kind:"place", name:e.title, title:[e.start!=null?fmtTime(e.start)+(e.end!=null?" to "+fmtTime(e.end):""):"", e.details].filter(Boolean).join(". "), room:"TC-"+room}});
+  }));
+  const st = $("#events-status");
+  if (st){
+    if (eventsError && eventsUpdated) st.textContent = `Couldn't refresh. Showing the list from ${fmtTime(eventsUpdated.getHours()*60+eventsUpdated.getMinutes())}.`;
+    else if (eventsError && EVENTS_CSV_URL) st.textContent = "The events list is unavailable right now.";
+    else if (eventsUpdated) st.textContent = `Updated ${fmtTime(eventsUpdated.getHours()*60+eventsUpdated.getMinutes())}`;
+    else st.textContent = "";
+  }
+}
+
+async function loadEvents(){
+  if (!EVENTS_CSV_URL){ renderEvents(); return; }
+  try {
+    const url = EVENTS_CSV_URL + (EVENTS_CSV_URL.includes("?") ? "&" : "?") + "_=" + Date.now();
+    const res = await fetch(url, {cache:"no-store"});
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const text = await res.text();
+    if (/^\s*</.test(text)) throw new Error("The link did not return CSV. Use File > Share > Publish to web > CSV.");
+    EVENTS = rowsToEvents(parseCSV(text));
+    eventsUpdated = new Date(); eventsError = "";
+    try { localStorage.setItem(EVENTS_CACHE_KEY, JSON.stringify({at:eventsUpdated.toISOString(), events:EVENTS})); } catch(_){}
+  } catch (err){
+    eventsError = String(err.message || err);
+    console.warn("Events load failed:", eventsError);
+    if (!EVENTS.length){
+      try {
+        const c = JSON.parse(localStorage.getItem(EVENTS_CACHE_KEY) || "null");
+        if (c && Array.isArray(c.events)){ EVENTS = c.events; eventsUpdated = new Date(c.at); }
+      } catch(_){}
+    }
+  }
+  renderEvents();
+}
+loadEvents();
+setInterval(loadEvents, EVENTS_REFRESH_MINUTES * 60 * 1000);
+setInterval(renderEvents, 60 * 1000);
+
+
+/* Auto-update: reload when index.html or data.js changes on the server */
+const UPDATE_CHECK_MINUTES = 15;
+let updatePending = false, siteSig = null;
+function hashText(t){ let h = 5381; for (let i = 0; i < t.length; i++) h = ((h << 5) + h + t.charCodeAt(i)) | 0; return h + ":" + t.length; }
+const isIdle = () => !$("#attract").classList.contains("hidden");
+async function checkForUpdate(){
+  if (location.protocol === "file:") return;
+  try {
+    const texts = await Promise.all(["index.html","data.js"].map(f =>
+      fetch(f + "?_=" + Date.now(), {cache:"no-store"}).then(r => { if (!r.ok) throw new Error(f + " " + r.status); return r.text(); })));
+    const sig = hashText(texts.join("\n"));
+    if (siteSig === null) siteSig = sig;
+    else if (sig !== siteSig){ updatePending = true; if (isIdle()) location.reload(); }
+  } catch (err){ console.warn("Update check failed:", err.message || err); }
+}
+checkForUpdate();
+setInterval(checkForUpdate, UPDATE_CHECK_MINUTES * 60 * 1000);
+/* Safety net: reload once a night at 3 AM if nobody is using the kiosk */
+setInterval(() => { const d = new Date(); if (d.getHours() === 3 && d.getMinutes() === 0 && isIdle()) location.reload(); }, 60 * 1000);
+
+/* Idle reset to attract screen */
+let idleTimer;
+function resetIdle(){
+  clearTimeout(idleTimer);
+  idleTimer = setTimeout(() => { goHome(); $("#attract").classList.remove("hidden"); if (updatePending) location.reload(); }, IDLE_SECONDS*1000);
+}
+["pointerdown","keydown"].forEach(ev => document.addEventListener(ev, resetIdle, {passive:true}));
+$("#attract").addEventListener("pointerdown", e => { e.preventDefault(); $("#attract").classList.add("hidden"); resetIdle(); });
+document.addEventListener("contextmenu", e => e.preventDefault());
+
+/* Physical keyboard support (for testing on a laptop) */
+document.addEventListener("keydown", e => {
+  if (!current || current.view !== "search") return;
+  if (e.key === "Backspace") query = query.slice(0,-1);
+  else if (e.key === "Escape") query = "";
+  else if (/^[a-z0-9 \-]$/i.test(e.key) && query.length < 40) query += e.key.toLowerCase();
+  else return;
+  renderSearch();
+});
+
+/* Floor plan images (from the Todd Center emergency plan) */
+const FLOOR_IMG = {1:"floor-ground.jpg", 2:"floor-second.jpg"};
+
+buildKeyboard();
+goHome();
+</script>
+</body>
+</html>
