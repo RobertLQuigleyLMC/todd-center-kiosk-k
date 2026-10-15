@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Todd Center Directory</title>
 <meta name="color-scheme" content="only light">
+<meta name="theme-color" content="#22303E">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
 <link rel="preload" href="fonts/overpass-latin.woff2" as="font" type="font/woff2" crossorigin>
 <style>
 /* Overpass, kept in fonts/ so the kiosk does not depend on Google Fonts (SIL Open Font License, fonts/OFL.txt) */
@@ -1229,7 +1233,7 @@ function renderCalendar(){
 
 /* Auto-update: reload when index.html or data.js changes on the server */
 /* Kiosk version: update this and CHANGELOG.md with every release. */
-const KIOSK_VERSION = "2.7.0";
+const KIOSK_VERSION = "2.8.0";
 document.getElementById("kiosk-version").textContent = "v" + KIOSK_VERSION;
 const UPDATE_CHECK_MINUTES = 15;
 let updatePending = false, siteSig = null;
@@ -1293,6 +1297,18 @@ $("#attract").addEventListener("pointerdown", e => {
 });
 playVideo();
 document.addEventListener("contextmenu", e => e.preventDefault());
+
+/* Full screen: browsers only allow it right after a touch, so ask on every touch
+   until it sticks. A reload or a swipe out drops it; the next touch brings it back. */
+function goFullscreen(){
+  if (typeof KIOSK_FULLSCREEN !== "undefined" && !KIOSK_FULLSCREEN) return;
+  const el = document.documentElement;
+  if (document.fullscreenElement || document.webkitFullscreenElement) return;
+  const req = el.requestFullscreen || el.webkitRequestFullscreen;
+  if (!req) return;
+  try { const p = req.call(el, {navigationUI:"hide"}); if (p && p.catch) p.catch(() => {}); } catch(_){}
+}
+["pointerup","keydown"].forEach(ev => document.addEventListener(ev, goFullscreen, {capture:true}));
 
 /* Physical keyboard support (for testing on a laptop) */
 document.addEventListener("keydown", e => {

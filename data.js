@@ -18,6 +18,9 @@ const EVENTS_CSV_URL = "";
 const EVENTS_REFRESH_MINUTES = 5;
 
 const IDLE_SECONDS = 90;
+/* true: the kiosk goes full screen (no browser bars) the first time someone touches it,
+   and again after any reload. Set to false when testing on a laptop. */
+const KIOSK_FULLSCREEN = true;
 const HELP_DESK = "TC-1215";
 
 /* ---------- Directory ----------

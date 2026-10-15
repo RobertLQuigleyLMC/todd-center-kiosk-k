@@ -36,6 +36,7 @@ Current version: see `CHANGELOG.md` (also shown in the kiosk footer).
 | `upcoming.json` | Todd Center events for about the next two months, for the Upcoming events calendar | No, updated nightly by the `Update upcoming events` Action |
 | `maps/` | Floor plans and room positions for the Main Building, Hanson, Welch, and South Haven | Only if building plans change |
 | `fonts/` | The Overpass font (SIL Open Font License, see `fonts/OFL.txt`) | No |
+| `manifest.webmanifest`, `icons/` | Lets the kiosk be added to the board's home screen as a full-screen app | No |
 | `media/` | The start screen video (set in `data.js` as `ATTRACT_VIDEO`) | To change the video, upload one with a new file name and update `data.js` |
 | `lib/qrcode.js` | QR code maker used for the directions codes (MIT license, by Kazuhiko Arase) | No |
 | `qr-space-use.svg` | QR code for the space request page, shown when there are no events | Only if the link changes (make a new QR code with the same file name) |
