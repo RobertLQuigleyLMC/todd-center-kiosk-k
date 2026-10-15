@@ -576,8 +576,8 @@ tick(); setInterval(tick, 10000);
 
 /* =========================================================
    TODAY'S EVENTS
-   Paste the "Publish to web" CSV link of the events Google
-   Sheet below. Columns: Date, Start, End, Event, Location, Details
+   Todd Center events from the LMC calendar (events.json).
+   Optional Google Sheet columns: Date, Start, End, Event, Location, Details
    ========================================================= */
 const EVENTS_CACHE_KEY = "toddKioskEvents";
 
@@ -666,10 +666,12 @@ function todaysEvents(){
 function renderEvents(){
   const box = $("#events"); if (!box) return;
   const list = todaysEvents();
+  const todayKey = new Date().toLocaleDateString("en-CA");
   const today = EVENTS.filter(e => e.date === new Date().toDateString()).length;
+  const covered = EVENTS_CSV_URL || calendarDates.includes(todayKey);
   let h = "";
-  if (!EVENTS_CSV_URL && !EVENTS.length){
-    h = `<div class="ev-empty">Events will show here once the events sheet is connected.</div>`;
+  if (!eventsLoaded || !covered){
+    h = `<div class="ev-empty">${eventsLoaded || eventsError ? "Today's events aren't available right now." : "Loading today's events..."}</div>`;
   } else if (!list.length){
     h = `<div class="ev-empty">${today ? "That's all for today. Check back tomorrow." : "No events are scheduled in the Todd Center today."}</div>`;
   } else {
@@ -678,7 +680,7 @@ function renderEvents(){
       const time = e.start == null ? "All day" : fmtTime(e.start);
       const until = e.end != null ? `until ${fmtTime(e.end)}` : "";
       return `<button class="ev${e.now ? " now" : ""}${room ? "" : " noroom"}" data-ev="${i}" ${room ? "" : "tabindex=\"-1\""}>
-        <div class="ev-time"><b>${esc(time)}</b><span>${e.now ? "Happening now" : esc(until)}</span></div>
+        <div class="ev-time"><b>${esc(time)}</b><span>${e.now ? "Now" + (e.end != null ? ", until " + fmtTime(e.end) : "") : esc(until)}</span></div>
         <div class="ev-body"><div class="ev-title">${esc(e.title)}</div>
           ${e.location ? `<div class="ev-loc">${esc(e.location)}${room ? '<span class="ev-map">Map</span>' : ""}</div>` : ""}
           ${e.details ? `<div class="ev-det">${esc(e.details)}</div>` : ""}</div>
@@ -692,32 +694,41 @@ function renderEvents(){
     go({view:"detail", item:{kind:"place", name:e.title, title:[e.start!=null?fmtTime(e.start)+(e.end!=null?" to "+fmtTime(e.end):""):"", e.details].filter(Boolean).join(". "), room:"TC-"+room}});
   }));
   const st = $("#events-status");
-  if (st){
-    if (eventsError && eventsUpdated) st.textContent = `Couldn't refresh. Showing the list from ${fmtTime(eventsUpdated.getHours()*60+eventsUpdated.getMinutes())}.`;
-    else if (eventsError && EVENTS_CSV_URL) st.textContent = "The events list is unavailable right now.";
-    else if (eventsUpdated) st.textContent = `Updated ${fmtTime(eventsUpdated.getHours()*60+eventsUpdated.getMinutes())}`;
-    else st.textContent = "";
-  }
+  if (st) st.textContent = eventsError && eventsLoaded ? "Showing the last saved list" : "";
 }
 
+/* Events come from events.json, which a GitHub Action fills from the
+   LMC calendar. If EVENTS_CSV_URL is set in data.js, a Google Sheet is used instead. */
+let calendarDates = [];
+let eventsLoaded = false;
 async function loadEvents(){
-  if (!EVENTS_CSV_URL){ renderEvents(); return; }
   try {
-    const url = EVENTS_CSV_URL + (EVENTS_CSV_URL.includes("?") ? "&" : "?") + "_=" + Date.now();
-    const res = await fetch(url, {cache:"no-store"});
-    if (!res.ok) throw new Error("HTTP " + res.status);
-    const text = await res.text();
-    if (/^\s*</.test(text)) throw new Error("The link did not return CSV. Use File > Share > Publish to web > CSV.");
-    EVENTS = rowsToEvents(parseCSV(text));
-    eventsUpdated = new Date(); eventsError = "";
-    try { localStorage.setItem(EVENTS_CACHE_KEY, JSON.stringify({at:eventsUpdated.toISOString(), events:EVENTS})); } catch(_){}
+    if (EVENTS_CSV_URL){
+      const url = EVENTS_CSV_URL + (EVENTS_CSV_URL.includes("?") ? "&" : "?") + "_=" + Date.now();
+      const res = await fetch(url, {cache:"no-store"});
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      const text = await res.text();
+      if (/^\s*</.test(text)) throw new Error("The link did not return CSV. Use File > Share > Publish to web > CSV.");
+      EVENTS = rowsToEvents(parseCSV(text));
+    } else {
+      const res = await fetch("events.json?_=" + Date.now(), {cache:"no-store"});
+      if (!res.ok) throw new Error("events.json HTTP " + res.status);
+      const j = await res.json();
+      calendarDates = Array.isArray(j.dates) ? j.dates : [];
+      EVENTS = (j.events || []).map(e => {
+        const d = parseDate(e.date);
+        return d ? {date: d.toDateString(), start: parseTime(e.start), end: parseTime(e.end), title: e.title || "", location: e.location || "", details: e.details || ""} : null;
+      }).filter(Boolean);
+    }
+    eventsLoaded = true; eventsUpdated = new Date(); eventsError = "";
+    try { localStorage.setItem(EVENTS_CACHE_KEY, JSON.stringify({at:eventsUpdated.toISOString(), events:EVENTS, dates:calendarDates})); } catch(_){}
   } catch (err){
     eventsError = String(err.message || err);
     console.warn("Events load failed:", eventsError);
-    if (!EVENTS.length){
+    if (!eventsLoaded){
       try {
         const c = JSON.parse(localStorage.getItem(EVENTS_CACHE_KEY) || "null");
-        if (c && Array.isArray(c.events)){ EVENTS = c.events; eventsUpdated = new Date(c.at); }
+        if (c && Array.isArray(c.events)){ EVENTS = c.events; calendarDates = c.dates || []; eventsUpdated = new Date(c.at); eventsLoaded = true; }
       } catch(_){}
     }
   }
