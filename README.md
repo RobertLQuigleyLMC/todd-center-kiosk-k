@@ -1,6 +1,24 @@
 # Todd Center Kiosk
 
-Touch-screen directory and wayfinding kiosk for the Todd Center at Lake Michigan College, built for a Clevertouch display. Live at https://jmbenak-lmc.github.io/todd-center-kiosk/
+Touch-screen directory and wayfinding kiosk for the Todd Center at Lake Michigan College, built for a Clevertouch display.
+
+This is Kyle Kelly's working copy, forked from [jmbenak-lmc/todd-center-kiosk](https://github.com/jmbenak-lmc/todd-center-kiosk).
+
+| Site | Address | Built from |
+|---|---|---|
+| This copy | https://kyleleroykelly.github.io/todd-center-kiosk/ | `main` branch of this repository |
+| Original | https://jmbenak-lmc.github.io/todd-center-kiosk/ | `main` branch of jmbenak-lmc/todd-center-kiosk |
+
+## Branches
+
+- `kyle_dev`: day-to-day work. Changes here are not on the live site yet.
+- `main`: what the live site shows. Merge `kyle_dev` into `main` (with a pull request) to publish. The update Actions run on `main` and save fresh `directory.json` and `events.json` there.
+
+## Setting up the live site (one time)
+
+1. **Turn on GitHub Pages.** In this repository go to **Settings > Pages**. Under **Build and deployment**, set **Source** to **Deploy from a branch**, pick **main** and **/ (root)**, and click **Save**. The site is live at the address above within a few minutes.
+2. **Turn on the Actions.** GitHub pauses scheduled Actions in a fork. Open the **Actions** tab and click **I understand my workflows, go ahead and enable them**. Then open **Update directory** and **Update Todd Center events** and click **Enable workflow** on each if asked. Use **Run workflow** once on each to get fresh data right away.
+3. **Check the Action permissions.** In **Settings > Actions > General**, under **Workflow permissions**, choose **Read and write permissions** so the Actions can save the data files.
 
 Current version: see `CHANGELOG.md` (also shown in the kiosk footer).
 
@@ -26,7 +44,7 @@ The kiosk shows what the LMC website directory says. To correct something withou
 - `DIRECTORY_ADD`: people or offices missing from the directory
 - `PROGRAM_TAGS`: who appears under each program on the Programs screen
 
-Click the pencil icon on `data.js`, make the change, and commit. The kiosk picks it up within about 15 minutes, the next time nobody is using it. If an edit has a typo, the kiosk shows a message instead of the directory: open `data.js`, click **History**, and revert the last change.
+Quick corrections can go straight to `main` so they go live right away: switch to the `main` branch, click the pencil icon on `data.js`, make the change, and commit. The kiosk picks it up within about 15 minutes, the next time nobody is using it. If an edit has a typo, the kiosk shows a message instead of the directory: open `data.js`, click **History**, and revert the last change.
 
 ## Versions
 

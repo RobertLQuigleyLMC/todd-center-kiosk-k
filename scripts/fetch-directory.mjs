@@ -10,7 +10,7 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 async function get(url){
   for (let i = 0; i < 3; i++){
     try {
-      const r = await fetch(url, {headers:{"User-Agent":"LMC Todd Center kiosk (github.com/jmbenak-lmc/todd-center-kiosk)"}});
+      const r = await fetch(url, {headers:{"User-Agent":"LMC Todd Center kiosk (github.com/kyleleroykelly/todd-center-kiosk)"}});
       if (r.ok) return await r.text();
       throw new Error(r.status + " " + url);
     } catch (e){ if (i === 2) throw e; await sleep(2000 * (i + 1)); }
