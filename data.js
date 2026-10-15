@@ -6,6 +6,7 @@
 
    Tips:
    - Each entry sits between { and }, followed by a comma.
+   - Lines starting with // are notes and are ignored.
    - Keep the quotation marks around every value.
    - room: "" means no office is listed.
    ========================================================= */
@@ -19,61 +20,50 @@ const EVENTS_REFRESH_MINUTES = 5;
 const IDLE_SECONDS = 90;
 const HELP_DESK = "TC-1215";
 
-const PEOPLE = [
-  {name:"Lisa Augustyniak", title:"Faculty, Business Administration", room:"TC-2208", phone:"269-927-8171", email:"augustyn@lakemichigancollege.edu", programs:["Business"]},
-  {name:"William Baker", title:"Assistant Director, Police Academy", room:"", phone:"269-927-8743", email:"webaker@lakemichigancollege.edu", programs:["Criminal Justice"]},
-  {name:"Jay Bauer", title:"Director, Berrien Talent Collaborative", room:"TC-2206", phone:"269-927-8198", email:"jbauer@lakemichigancollege.edu", programs:[]},
-  {name:"James Benak", title:"Faculty, Computer Information Systems", room:"TC-2214", phone:"269-927-8772", email:"jbenak@lakemichigancollege.edu", programs:["CIS"]},
-  {name:"Mary Britenfeld", title:"Faculty, Business", room:"", phone:"", email:"mbritenfeld@lakemichigancollege.edu", programs:["Business"]},
-  {name:"Kristina Broughton", title:"Faculty, Business", room:"", phone:"", email:"kbroughton@lakemichigancollege.edu", programs:["Business"]},
-  {name:"Tamesha Brown", title:"Adjunct Faculty, Criminology", room:"", phone:"", email:"tbrown@lakemichigancollege.edu", programs:["Criminal Justice"]},
-  {name:"Brad Byerle", title:"Department Chair, Business, CIS & Criminal Justice", room:"TC-2202", phone:"269-927-8154", email:"bbyerle@lakemichigancollege.edu", programs:["Business","CIS","Criminal Justice"]},
-  {name:"Jennifer Clark", title:"Administrative Coordinator, Career & Workforce Education", room:"TC-1201", phone:"269-927-8967", email:"jlclark@lakemichigancollege.edu", programs:[]},
-  {name:"Randall James", title:"Faculty, Computer Information Systems", room:"", phone:"", email:"rjames@lakemichigancollege.edu", programs:["CIS"]},
-  {name:"Jeffrey Johnson", title:"Adjunct, Criminal Justice", room:"", phone:"", email:"jljohnson@lakemichigancollege.edu", programs:["Criminal Justice"]},
-  {name:"Kyle Kelly", title:"Faculty, CIS and Esports Director", room:"TC-2214", phone:"269-927-4568", email:"kkelly@lakemichigancollege.edu", programs:["CIS","Esports"]},
-  {name:"David Krueger", title:"Dean, Career & Workforce Education", room:"TC-1212", phone:"269-927-8157", email:"dkrueger@lakemichigancollege.edu", programs:[]},
-  {name:"Kristi Lafrenz", title:"Faculty, Marketing & Business Communications", room:"TC-2204", phone:"269-927-8766", email:"klafrenz@lakemichigancollege.edu", programs:["Business"]},
-  {name:"Danny Langston", title:"Faculty, Business & Accounting", room:"TC-2210", phone:"269-927-8968", email:"dlangston@lakemichigancollege.edu", programs:["Business"]},
-  {name:"Lynn Lehman", title:"Adjunct Faculty, Business", room:"", phone:"", email:"llehman@lakemichigancollege.edu", programs:["Business"]},
-  {name:"Anthony Pastrick", title:"Faculty, Business", room:"", phone:"", email:"apastrick@lakemichigancollege.edu", programs:["Business"]},
-  {name:"John Phillips", title:"Adjunct Faculty, Esports", room:"", phone:"", email:"jphillips@lakemichigancollege.edu", programs:["Esports"]},
-  {name:"Robert Quigley", title:"Faculty, Computer Information Systems", room:"TC-2211", phone:"269-927-6902", email:"rquigley@lakemichigancollege.edu", programs:["CIS"]},
-  {name:"Kristopher Rich", title:"Faculty, Business", room:"", phone:"", email:"krich@lakemichigancollege.edu", programs:["Business"]},
-  {name:"Mark Ridgeway", title:"Faculty, Computer Information Systems", room:"TC-2216", phone:"269-927-6586", email:"mridgeway@lakemichigancollege.edu", programs:["CIS"]},
-  {name:"Ryan Soper", title:"Adjunct, Police Academy", room:"", phone:"", email:"rsoper@lakemichigancollege.edu", programs:["Criminal Justice"]},
-  {name:"Lynn Tuori", title:"Adjunct Faculty, Business", room:"", phone:"", email:"ltuori@lakemichigancollege.edu", programs:["Business"]},
-  {name:"Joe Zwiller", title:"Faculty, Business", room:"TC-2212", phone:"269-927-1000 ext. 5003", email:"jzwiller@lakemichigancollege.edu", programs:["Business"]}
+/* ---------- Directory ----------
+   People and offices come from the LMC website directory automatically
+   (directory.json, refreshed nightly). Use the lists below to correct it. */
+
+/* Entries to hide from the kiosk, by name exactly as the directory shows it. */
+const DIRECTORY_REMOVE = [
+  "Siena Heights University"            // no longer has an office at LMC
 ];
 
-const OFFICES = [
-  {name:"Career & Workforce Education", title:"Business, CIS, Criminal Justice, Culinary, Welding, Wine & Viticulture, and continuing education programs", room:"TC-1215", phone:"269-927-8967", email:"", keywords:"cwe workforce programs help desk front desk"},
-  {name:"Dean, Career & Workforce Education", title:"Dr. David Krueger", room:"TC-1212", phone:"269-927-8157", email:"dkrueger@lakemichigancollege.edu", keywords:"dean"},
-  {name:"Department Chair, Business, CIS & Criminal Justice", title:"Brad Byerle", room:"TC-2202", phone:"269-927-8154", email:"bbyerle@lakemichigancollege.edu", keywords:"chair"},
-  {name:"Lake Michigan College Foundation", title:"Scholarships, donations, alumni, endowments, planned giving", room:"TC-1204", phone:"269-927-6590", email:"", keywords:"foundation alumni scholarships donate giving"},
-  {name:"Berrien Talent Collaborative", title:"Director: Jay Bauer", room:"TC-2206", phone:"269-925-7655", email:"btc@lakemichigancollege.edu", keywords:"btc talent"},
-  {name:"Financial Services", title:"Accounts payable and receivable, payroll, procurement cards, notary, travel and expense forms", room:"TC-2301", phone:"", email:"procards@lakemichigancollege.edu", keywords:"finance payroll notary procurement"},
-  {name:"Siena Heights University", title:"Bachelor's degree completion at LMC", room:"TC-2202", phone:"269-927-6711", email:"", keywords:"siena transfer bachelor"}
+/* Corrections that override the directory. Use the directory name as the key and
+   give only the fields to change: room, building, campus, title, phone, email. */
+const DIRECTORY_FIX = {
+  "Hawks Nest Cafe": {room: "A-200"}    // from the Main Building floor plan (Hawks Nest, A200)
+};
+
+/* People or offices that are missing from the directory. Example:
+   {name:"Jane Doe", title:"Faculty, Business", campus:"Benton Harbor Campus", building:"Todd Center", room:"TC-2210", email:"", phone:""} */
+const DIRECTORY_ADD = [
 ];
 
-const CAMPUS = [
-  {name:"Admissions & Recruitment", where:"Hanson Technology Center, Collaboration Area", room:"", phone:"269-927-8626"},
-  {name:"Financial Aid", where:"Main Building", room:"A-202", phone:"269-927-8112"},
-  {name:"Records & Registration", where:"Main Building", room:"A-221", phone:"269-927-8107"},
-  {name:"Bursar's Office (payments)", where:"Main Building", room:"", phone:"269-927-8610"},
-  {name:"Advising", where:"Available at all campuses", room:"", phone:"", email:"advisor@lakemichigancollege.edu"},
-  {name:"Career Center", where:"Main Building", room:"A-222", phone:"269-927-8147"},
-  {name:"Campus Life", where:"Main Building", room:"A-200a", phone:"269-927-6172"},
-  {name:"Student Well-Being & Accessibility", where:"Main Building", room:"C-201", phone:"269-927-8866"},
-  {name:"Library", where:"Main Building", room:"L-170", phone:"269-927-8605"},
-  {name:"Testing & Tutoring Services", where:"Main Building", room:"L-193", phone:"269-927-6173"},
-  {name:"Writing Lab", where:"Main Building", room:"L-280", phone:"269-927-8167"},
-  {name:"IT Service Desk", where:"Main Building", room:"C-229", phone:"269-927-8189"},
-  {name:"Bookstore", where:"Main Building", room:"S-121", phone:"800-252-1562"},
-  {name:"Hawks Nest Cafe", where:"Main Building", room:"", phone:"269-926-1956"},
-  {name:"Campus Security", where:"Main Building", room:"S-109a", phone:"269-927-6715"},
-  {name:"Fab Lab", where:"Hanson Technology Center", room:"HT-102", phone:"269-927-4851"}
-];
+/* Program tags for the Programs button, by directory name. */
+const PROGRAM_TAGS = {
+  "Lisa Augustyniak": ["Business"],
+  "William Baker": ["Criminal Justice"],
+  "James Benak": ["CIS"],
+  "Mary Britenfeld": ["Business"],
+  "Kristina Broughton": ["Business"],
+  "Tamesha Brown": ["Criminal Justice"],
+  "Brad Byerle": ["Business","CIS","Criminal Justice"],
+  "Randall James": ["CIS"],
+  "Jeffrey Johnson": ["Criminal Justice"],
+  "Kyle Kelly": ["CIS","Esports"],
+  "Kristi Lafrenz": ["Business"],
+  "Danny Langston": ["Business"],
+  "Lynn Lehman": ["Business"],
+  "Anthony Pastrick": ["Business"],
+  "John Phillips": ["Esports"],
+  "Robert Quigley": ["CIS"],
+  "Kristopher Rich": ["Business"],
+  "Mark Ridgeway": ["CIS"],
+  "Ryan Soper": ["Criminal Justice"],
+  "Lynn Tuori": ["Business"],
+  "Joe Zwiller": ["Business"]
+};
 
 const PROGRAMS = ["Business","CIS","Criminal Justice","Esports"];
 const PROGRAM_LABEL = {"Business":"Business","CIS":"Computer Information Systems","Criminal Justice":"Criminal Justice & Police Academy","Esports":"Esports"};

@@ -1,29 +1,33 @@
 # Todd Center Kiosk
 
-Touch-screen directory and wayfinding kiosk for the Todd Center at Lake Michigan College, built for a Clevertouch display.
+Touch-screen directory and wayfinding kiosk for the Todd Center at Lake Michigan College, built for a Clevertouch display. Live at https://jmbenak-lmc.github.io/todd-center-kiosk/
+
+Current version: see `CHANGELOG.md` (also shown in the kiosk footer).
 
 ## Files
 
 | File | What it is | Edit it? |
 |---|---|---|
-| `data.js` | People, offices, rooms, directions, and the events sheet link | Yes, this is the file you update |
-| `index.html` | The kiosk app | Only for design or feature changes |
-| `floor-ground.jpg`, `floor-second.jpg` | Floor plans used for the maps | Only if the building plans change |
+| `data.js` | Corrections to the directory, program tags, Todd Center rooms and directions, kiosk settings | Yes, this is the file you update |
+| `index.html` | The kiosk app (holds `KIOSK_VERSION`) | Only for design or feature changes |
+| `CHANGELOG.md` | Version history | Add an entry with every release |
+| `directory.json` | People and offices from the LMC website | No, updated nightly by the `Update directory` Action |
+| `events.json` | Today's Todd Center events from the LMC calendar | No, updated every 30 minutes by the `Update Todd Center events` Action |
+| `maps/` | Floor plans and room positions for the Main Building, Hanson, Welch, and South Haven | Only if building plans change |
+| `floor-ground.jpg`, `floor-second.jpg` | Todd Center floor plans | Only if building plans change |
+| `scripts/` | The scripts the Actions run | Only if the LMC website changes |
 
-## Updating the directory
+## Fixing the directory
 
-1. Open `data.js` in GitHub and click the pencil icon.
-2. Make your change. Keep the quotation marks and the comma after each `}`.
-3. Click **Commit changes**.
+The kiosk shows what the LMC website directory says. To correct something without waiting for the website, edit `data.js`:
 
-GitHub Pages republishes in about a minute. The kiosk checks for changes every 15 minutes and reloads the next time nobody is using it. If an edit has a typo, the kiosk shows a message instead of the directory: open `data.js`, click **History**, and revert the last change.
+- `DIRECTORY_REMOVE`: names to hide
+- `DIRECTORY_FIX`: change a room, building, title, phone, or email for one name
+- `DIRECTORY_ADD`: people or offices missing from the directory
+- `PROGRAM_TAGS`: who appears under each program on the Programs screen
 
-## Today's events
+Click the pencil icon on `data.js`, make the change, and commit. The kiosk picks it up within about 15 minutes, the next time nobody is using it. If an edit has a typo, the kiosk shows a message instead of the directory: open `data.js`, click **History**, and revert the last change.
 
-Events come from a Google Sheet with the columns `Date, Start, End, Event, Location, Details`. Publish the sheet with **File > Share > Publish to web > Comma-separated values (.csv)** and paste the link into `EVENTS_CSV_URL` at the top of `data.js`. Put a Todd Center room number (for example `TC-2304`) in Location to link the event to the map.
+## Versions
 
-## Kiosk settings (in `data.js`)
-
-- `IDLE_SECONDS`: seconds without a touch before the start screen returns (90).
-- `HELP_DESK`: where people without a listed office are sent (TC-1215).
-- `YOU_ARE_HERE`: position of the "You are here" star on the map (main lobby).
+Versions use MAJOR.MINOR.PATCH. For each release, update `KIOSK_VERSION` in `index.html`, add an entry to `CHANGELOG.md`, and start the commit message with the version, for example `v2.0.1: fix room for Financial Aid`. File names on the site stay the same so the kiosk address never changes.

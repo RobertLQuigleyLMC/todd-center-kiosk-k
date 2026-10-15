@@ -83,6 +83,7 @@ main{overflow:hidden;position:relative}
 .vhead p{margin:0;color:var(--muted);font-size:clamp(1rem,1.4vw,1.3rem)}
 
 .chips{display:flex;flex-wrap:wrap;gap:.6rem;margin-bottom:1.2rem}
+#chips{position:sticky;top:calc(-1 * clamp(1rem,2.4vw,2.4rem));z-index:3;background:var(--bg);padding:.6rem 0}
 .chip{border:3px solid var(--line);background:var(--panel);border-radius:999px;padding:.6rem 1.3rem;font-size:clamp(1rem,1.5vw,1.35rem);font-weight:600}
 .chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 
@@ -95,8 +96,16 @@ main{overflow:hidden;position:relative}
 .row .n{font-weight:800;font-size:clamp(1.3rem,2.1vw,1.9rem);line-height:1.15}
 .row .s{color:var(--muted);font-size:clamp(1rem,1.4vw,1.3rem);margin-top:.2rem;line-height:1.3}
 .room{font-weight:900;font-variant-numeric:tabular-nums;font-size:clamp(1.6rem,3vw,2.8rem);letter-spacing:-.01em;white-space:nowrap}
+.room.txt{font-size:clamp(1.05rem,1.6vw,1.45rem);font-weight:800;white-space:normal;text-align:right;max-width:16ch;line-height:1.2}
+.plate .bigroom.txt{font-size:clamp(2.2rem,4.6vw,4.2rem);line-height:1}
+.room.txt small{font-size:.7em}
+.room small{display:block;font-size:.42em;font-weight:700;color:var(--muted);text-align:right;letter-spacing:0;margin-top:.15em}
+.grouphead{font-weight:900;font-size:clamp(1.2rem,1.9vw,1.7rem);margin:1.2rem 0 .2rem;padding:.3rem .2rem;border-bottom:3px solid var(--red)}
+.grouphead:first-child{margin-top:0}
+.chip.letter{min-width:2.6em;padding:.5rem .7rem;text-align:center}
+.chip[disabled]{opacity:.3}
 .room.ask{font-weight:600;font-size:clamp(.95rem,1.3vw,1.2rem);color:var(--muted);text-align:right;white-space:normal;max-width:16ch;line-height:1.25}
-.row.away{border-left-color:var(--red)}
+.row.away{border-left-color:#8A96A3}
 .empty{background:var(--panel);border-radius:12px;padding:2rem;font-size:clamp(1.2rem,2vw,1.7rem);line-height:1.4}
 
 /* Detail: room plate + map */
@@ -124,9 +133,17 @@ main{overflow:hidden;position:relative}
 .ft[aria-pressed="true"]{background:#22303E;color:#FFFFFF}
 .ft .tag{display:inline-block;margin-left:.5rem;background:#A8192C;color:#fff;border-radius:999px;font-size:.72em;padding:.1em .6em;vertical-align:.12em}
 .mapstage{flex:1;min-height:0;position:relative}
-.mapbox{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);height:100%;max-width:100%;aspect-ratio:1600/2079}
+.mapbox{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);overflow:hidden}
+.mapzoom{position:absolute;inset:0;transition:transform .35s ease}
 .mapbox img{width:100%;height:100%;display:block;pointer-events:none}
-.pin{position:absolute;transform:translate(-50%,-50%);pointer-events:none}
+.pin{position:absolute;transform:translate(-50%,-50%) scale(var(--inv,1));pointer-events:none}
+.pin.target.approx .dot{background:#E06A00;box-shadow:0 0 0 3px #E06A00}
+.pin.target.approx .ring{border-color:#E06A00}
+.pin.target.approx .lbl{background:#B85500}
+.ft.single{display:flex;align-items:center;justify-content:center;cursor:default}
+.mapz{flex:none;border:0;border-left:3px solid #D5DBE0;background:#EEF1F3;color:#18212B;font-weight:800;font-size:clamp(1.05rem,1.6vw,1.45rem);padding:.85rem 1.2rem}
+.mapcard.full .mapz{font-size:clamp(1.3rem,2vw,1.9rem);padding:1.1rem 1.4rem}
+.mapchips{margin-bottom:1rem}
 .pin.target .dot{width:clamp(28px,2.8vw,42px);height:clamp(28px,2.8vw,42px);border-radius:50%;background:#A8192C;border:5px solid #fff;box-shadow:0 0 0 3px #A8192C}
 .pin.target .ring{position:absolute;inset:-14px;border-radius:50%;border:5px solid #A8192C;animation:ring 1.8s ease-out infinite}
 @keyframes ring{0%{transform:scale(.6);opacity:1}100%{transform:scale(1.7);opacity:0}}
@@ -304,7 +321,7 @@ footer small{color:var(--muted);font-size:clamp(.85rem,1.1vw,1rem);max-width:40c
       </button>
       <button class="nb solid" id="home">Home</button>
     </div>
-    <small>From the LMC employee directory. For help, visit Career &amp; Workforce Education in TC-1215.</small>
+    <small>From the LMC employee directory. For help, visit Career &amp; Workforce Education in TC-1215. <span id="kiosk-version"></span></small>
   </footer>
 </div>
 
@@ -318,23 +335,135 @@ footer small{color:var(--muted);font-size:clamp(.85rem,1.1vw,1rem);max-width:40c
 
 <script src="data.js"></script>
 <script>
-if (typeof PEOPLE === "undefined" || typeof ROOMS === "undefined"){
+if (typeof PLACES === "undefined" || typeof ROOMS === "undefined" || typeof DIRECTORY_FIX === "undefined"){
   document.body.innerHTML = '<div style="font:600 1.6rem/1.5 system-ui,sans-serif;padding:3rem;max-width:40ch">The kiosk could not read <b>data.js</b>. The most recent edit to that file has a typo. Undo it in GitHub (History, then revert) and the kiosk will recover.</div>';
   throw new Error("data.js missing or invalid");
 }
 /* ========================================================= */
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const byName = (a,b) => a.name.split(" ").slice(-1)[0].localeCompare(b.name.split(" ").slice(-1)[0]) || a.name.localeCompare(b.name);
-const locOf = item => item && (item.loc ? ROOMS[item.loc] : (item.room ? ROOMS[item.room.replace(/^TC-/,"")] : null));
+const lastName = n => { const p = n.trim().split(/\s+/); return (p.length > 1 ? p[p.length-1] : p[0]).toLowerCase(); };
+const byName = (a,b) => lastName(a.name).localeCompare(lastName(b.name)) || a.name.localeCompare(b.name);
 
-const ALL = [
-  ...PEOPLE.map(p => ({...p, kind:"person"})),
-  ...OFFICES.map(o => ({...o, kind:"office"})),
-  ...PLACES.map(p => ({...p, kind:"place"})),
-  ...CAMPUS.map(c => ({...c, kind:"campus", title:c.where}))
-];
+/* ---------- Buildings and maps ---------- */
+const BH = "Benton Harbor Campus";
+const BUILDING_NAME = {todd:"Todd Center", main:"Main Building", hanson:"Hanson Technology Center", welch:"Welch Center",
+  mendel:"Mendel Center", beckwith:"Beckwith Hall", southhaven:"South Haven Campus", niles:"Niles Campus", allegan:"Allegan"};
+const BUILDINGS = {
+  todd: {name:"Todd Center", campus:BH, crop:PLAN_CROP, floors:[
+    {n:1, label:FLOOR_NAME[1], img:"floor-ground.jpg", w:1600, h:2079},
+    {n:2, label:FLOOR_NAME[2], img:"floor-second.jpg", w:1600, h:2079}], rooms:{}}
+};
+const MAP_ORDER = ["todd","main","hanson","welch","southhaven"];
 
+function buildingKey(campus, building, room){
+  const b = (building || "").toLowerCase(), c = (campus || "").toLowerCase(), r = (room || "").toUpperCase();
+  if (/^TC-?\d/.test(r) || b.includes("todd")) return "todd";
+  if (c.includes("south haven") || b.includes("south haven")) return "southhaven";
+  if (c.includes("niles") || b.includes("niles")) return "niles";
+  if (c.includes("allegan") || b.includes("allegan")) return "allegan";
+  if (b.includes("hanson")) return "hanson";
+  if (b.includes("welch")) return "welch";
+  if (b.includes("mendel")) return "mendel";
+  if (b.includes("beckwith")) return "beckwith";
+  if (b.includes("main") || b.includes("napier")) return "main";
+  return "";
+}
+function campusOf(campus, bkey){
+  if (["todd","main","hanson","welch","mendel","beckwith"].includes(bkey)) return BH;
+  if (bkey === "southhaven") return "South Haven Campus";
+  if (bkey === "niles") return "Niles Campus";
+  if (bkey === "allegan") return "Allegan";
+  const c = (campus || "").trim();
+  if (/benton harbor/i.test(c)) return BH;
+  return c && !/^[A-Z]-?\d/.test(c) ? c : "";
+}
+function displayRoom(bkey, room){
+  room = (room || "").trim();
+  if (bkey === "todd"){ const m = room.match(/(\d{4})/); return m ? "TC-" + m[1] : room; }
+  return /^[A-Za-z]{1,3}-?\d/.test(room) ? room.toUpperCase() : room;
+}
+const isCode = r => /\d/.test(r || "") && !/\s/.test((r || "").trim());
+
+/* Returns {b, f, x, y, approx} for a building and a room as written in the directory. */
+function lookupRoom(bkey, room){
+  const B = BUILDINGS[bkey]; if (!B || !room) return null;
+  const r = room.toUpperCase().replace(/^NA-/, "");
+  const hit = (k, approx) => { const p = B.rooms[k]; return p ? {b:bkey, f:p.f ?? p.floor, x:p.x, y:p.y, area:p.area, approx:!!approx} : null; };
+  if (bkey === "todd"){ const m = r.match(/(\d{4})/); return m ? hit(m[1]) : null; }
+  if (bkey === "main"){
+    const m = r.match(/([ABCDLS])-?(\d{3})([A-Z])?/); if (!m) return null;
+    const exact = hit(m[1] + m[2] + (m[3] || "")) || hit(m[1] + m[2], !!m[3]);
+    if (exact) return exact;
+    const fl = Math.max(1, +m[2][0]), w = B.wings && B.wings[fl] && B.wings[fl][m[1]];
+    return w ? {b:bkey, f:fl, x:w.x, y:w.y, approx:true, wing:m[1]} : null;
+  }
+  if (bkey === "hanson"){
+    if (/COLLABORATION/.test(r)) return hit("H112");
+    const m = r.match(/H[A-Z]*-?(\d{3})([A-Z])?/); if (!m) return null;
+    return hit("H" + m[1] + (m[2] || "")) || hit("H" + m[1], !!m[2]);
+  }
+  if (bkey === "welch"){ const m = r.match(/([AB])-?(\d{3})/); return m ? hit(m[1] + m[2]) : null; }
+  if (bkey === "southhaven"){ const m = r.match(/(\d{3})/); return m ? hit(m[1]) : null; }
+  return null;
+}
+
+/* ---------- Directory ---------- */
+let DIR = [];             // people and offices from directory.json
+let dirLoaded = false, dirError = "";
+function normalizeEntry(e){
+  const fix = DIRECTORY_FIX[e.name] || {};
+  e = {...e, ...fix};
+  const bkey = buildingKey(e.campus, e.building, e.room);
+  const office = e.office ?? (e.name === e.title);
+  return {
+    kind: office ? "office" : "person", name: e.name, title: office ? (e.dept && e.dept !== e.name ? e.dept : "") : e.title,
+    dept: e.dept || "", bkey, campus: campusOf(e.campus, bkey), buildingName: BUILDING_NAME[bkey] || e.building || "",
+    room: displayRoom(bkey, e.room), email: e.email || "", phone: e.phone || "",
+    programs: PROGRAM_TAGS[e.name] || []
+  };
+}
+function buildDirectory(entries){
+  const remove = new Set(DIRECTORY_REMOVE.map(n => n.toLowerCase()));
+  DIR = [...entries, ...DIRECTORY_ADD].filter(e => e && e.name && !remove.has(e.name.toLowerCase())).map(normalizeEntry);
+  rebuildAll();
+}
+async function loadDirectory(){
+  try {
+    const res = await fetch("directory.json?_=" + Date.now(), {cache:"no-store"});
+    if (!res.ok) throw new Error("directory.json HTTP " + res.status);
+    const j = await res.json();
+    buildDirectory(j.entries || []);
+    dirLoaded = true; dirError = "";
+    try { localStorage.setItem("toddKioskDirectory", JSON.stringify(j.entries || [])); } catch(_){}
+  } catch (err){
+    dirError = String(err.message || err); console.warn("Directory load failed:", dirError);
+    if (!dirLoaded){
+      try { const c = JSON.parse(localStorage.getItem("toddKioskDirectory") || "null"); if (c){ buildDirectory(c); dirLoaded = true; } } catch(_){}
+    }
+  }
+  if (current && ["people","programs","campus","offices","search"].includes(current.view)) render();
+}
+async function loadBuildings(){
+  try {
+    const res = await fetch("maps/buildings.json", {cache:"no-store"});
+    if (!res.ok) throw new Error("buildings.json HTTP " + res.status);
+    const j = await res.json();
+    Object.entries(j).forEach(([k, v]) => {
+      v.floors.forEach(f => { f.img = f.img; });
+      BUILDINGS[k] = v;
+    });
+  } catch (err){ console.warn("Building maps unavailable:", err.message || err); }
+}
+
+let ALL = [];
+function rebuildAll(){
+  ALL = [...DIR, ...PLACES.map(p => ({...p, kind:"place", bkey:"todd", campus:BH, buildingName:"Todd Center"}))];
+}
+rebuildAll();
+Object.entries(ROOMS).forEach(([k, v]) => { BUILDINGS.todd.rooms[k] = v; });
+
+/* ---------- Navigation ---------- */
 let stack = [];
 let current = null;
 let query = "";
@@ -353,119 +482,191 @@ function go(state, push=true){
 function back(){ if (stack.length){ current = stack.pop(); render(); $("#back").disabled = stack.length === 0; } }
 function goHome(){ stack = []; current = {view:"home"}; query = ""; render(); $("#back").disabled = true; }
 
+/* ---------- Lists ---------- */
+const shortBuilding = it => it.bkey === "southhaven" ? "South Haven" : it.bkey === "niles" ? "Niles" :
+  it.bkey === "main" ? "Main Bldg" : it.bkey === "hanson" ? "Hanson Tech" : (it.buildingName || it.campus || "");
 function roomCell(item){
   if (item.show) return `<span class="room">${esc(item.show)}</span>`;
-  if (item.room) return `<span class="room">${esc(item.room)}</span>`;
-  if (item.kind === "campus") return `<span class="room ask">${esc(item.where.split(",")[0])}</span>`;
-  return `<span class="room ask">Ask at ${HELP_DESK}</span>`;
+  if (item.room && item.bkey === "todd") return `<span class="room">${esc(item.room)}</span>`;
+  if (item.room) return `<span class="room${isCode(item.room) ? "" : " txt"}">${esc(item.room)}<small>${esc(shortBuilding(item))}</small></span>`;
+  if (item.bkey === "todd" && item.kind === "person") return `<span class="room ask">Ask at ${HELP_DESK}</span>`;
+  const where = shortBuilding(item);
+  return `<span class="room ask">${esc(where || "No room listed")}</span>`;
 }
 function rowHTML(item, i){
-  const sub = item.kind === "campus" ? item.where : item.title;
-  return `<button class="row${item.kind==="campus"?" away":""}" data-i="${i}">
+  if (item.header) return `<div class="grouphead" ${item.letter ? `data-letter="${item.letter}"` : ""}>${esc(item.header)}</div>`;
+  const away = item.bkey && item.bkey !== "todd";
+  const sub = [item.title, item.campus && item.campus !== BH ? item.campus : ""].filter(Boolean).join(", ");
+  return `<button class="row${away ? " away" : ""}" data-i="${i}" data-l="${esc(lastName(item.name)[0] || "")}">
     <div><div class="n">${esc(item.name)}</div><div class="s">${esc(sub)}</div></div>${roomCell(item)}</button>`;
 }
 function bindRows(container, items){
   container.querySelectorAll(".row").forEach(r => r.addEventListener("click", () => go({view:"detail", item:items[+r.dataset.i]})));
 }
-
-function renderList(title, sub, items, chips){
+const CAMPUS_ORDER = [BH, "South Haven Campus", "Niles Campus", "Allegan", "All campuses"];
+function grouped(items, sorter){
+  const groups = {};
+  items.forEach(it => { const g = it.campus || "Campus not listed"; (groups[g] = groups[g] || []).push(it); });
+  const names = Object.keys(groups).sort((a,b) => {
+    const ia = CAMPUS_ORDER.indexOf(a), ib = CAMPUS_ORDER.indexOf(b);
+    return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib) || a.localeCompare(b);
+  });
+  const out = [];
+  names.forEach(n => { out.push({header:n}); out.push(...groups[n].sort(sorter)); });
+  return out;
+}
+function renderList(title, sub, items, opts = {}){
   show("list");
   $("#list-title").textContent = title;
   $("#list-sub").textContent = sub;
   const ch = $("#chips");
-  if (chips){
+  if (opts.programs){
     ch.classList.remove("hidden");
     ch.innerHTML = PROGRAMS.map(p => `<button class="chip" aria-pressed="${p===progFilter}" data-p="${p}">${esc(PROGRAM_LABEL[p])}</button>`).join("");
     ch.querySelectorAll(".chip").forEach(c => c.addEventListener("click", () => { progFilter = c.dataset.p; current.prog = progFilter; render(); }));
+  } else if (opts.letters){
+    ch.classList.remove("hidden");
+    const have = new Set(items.filter(i => !i.header && i.campus === BH).map(i => lastName(i.name)[0]));
+    ch.innerHTML = [..."abcdefghijklmnopqrstuvwxyz"].map(l => `<button class="chip letter" data-jump="${l}" ${have.has(l) ? "" : "disabled"}>${l.toUpperCase()}</button>`).join("");
+    ch.querySelectorAll("[data-jump]").forEach(c => c.addEventListener("click", () => {
+      const row = $("#list").querySelector(`.row[data-l="${c.dataset.jump}"]`);
+      const v = $("#v-list");
+      if (row) v.scrollTo({top: v.scrollTop + row.getBoundingClientRect().top - v.getBoundingClientRect().top - $("#chips").offsetHeight - 12, behavior:"smooth"});
+    }));
   } else ch.classList.add("hidden");
   const L = $("#list");
+  if (opts.loading){ L.innerHTML = `<div class="empty">${dirError && !dirLoaded ? "The directory is unavailable right now." : "Loading the directory..."}</div>`; return; }
+  if (!items.length){ L.innerHTML = `<div class="empty">${esc(opts.empty || "Nothing to show.")}</div>`; return; }
   L.innerHTML = items.map(rowHTML).join("");
   bindRows(L, items);
 }
 
 /* ---------- Map ---------- */
 const pct = (v, a, b) => ((v - a) / (b - a) * 100).toFixed(2) + "%";
-function pinStyle(p){ return `left:${pct(p.x,PLAN_CROP.x0,PLAN_CROP.x1)};top:${pct(p.y,PLAN_CROP.y0,PLAN_CROP.y1)}`; }
+function pinStyle(B, p, inv){ return `left:${pct(p.x,B.crop.x0,B.crop.x1)};top:${pct(p.y,B.crop.y0,B.crop.y1)};--inv:${inv}`; }
+const STAR = '<svg class="star" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.6 7L12 17.2 5.8 20.9l1.6-7L2 9.2l7.1-.6z"/></svg>';
 
-function mapHTML(floor, target, targetLabel, noElev){
-  const tFloor = target ? target.floor : null;
-  const tabs = [1,2].map(f => `<button class="ft" data-floor="${f}" aria-pressed="${f===floor}">${FLOOR_NAME[f]}${f===tFloor?'<span class="tag">Destination</span>':''}${f===YOU_ARE_HERE.floor && f!==tFloor?'<span class="tag" style="background:#1F5FB8">You are here</span>':''}</button>`).join("");
+function mapHTML(bkey, floor, target, targetLabel, noElev){
+  const B = BUILDINGS[bkey];
+  const fl = B.floors.find(f => f.n === floor) || B.floors[0];
+  const isTodd = bkey === "todd";
+  const tFloor = target ? target.f : null;
+  const wide = fl.w / fl.h > 1.2;
+  if (current.zoom == null) current.zoom = (target && wide) ? 2.4 : 1;
+  const z = (target && tFloor === fl.n) ? current.zoom : 1;
+  const inv = (1 / z).toFixed(3);
+  const tabs = B.floors.length > 1 ? B.floors.map(f => `<button class="ft" data-floor="${f.n}" aria-pressed="${f.n===fl.n}">${esc(f.label)}${f.n===tFloor?'<span class="tag">Destination</span>':''}${isTodd && f.n===YOU_ARE_HERE.floor && f.n!==tFloor?'<span class="tag" style="background:#1F5FB8">You are here</span>':''}</button>`).join("")
+    : `<div class="ft single">${esc(B.name)}</div>`;
   let pins = "";
-  if (target && !noElev && target.floor !== YOU_ARE_HERE.floor){
-    const e = ROOMS["ELEV"+floor];
-    pins += `<div class="pin elev" style="${pinStyle(e)}"><span class="lbl">Elevator</span></div>`;
+  if (isTodd && target && !noElev && target.f !== YOU_ARE_HERE.floor){
+    const e = ROOMS["ELEV"+fl.n];
+    if (e) pins += `<div class="pin elev" style="${pinStyle(B, e, inv)}"><span class="lbl">Elevator</span></div>`;
   }
-  if (YOU_ARE_HERE.floor === floor){
-    pins += `<div class="pin yah" style="${pinStyle(YOU_ARE_HERE)}"><svg class="star" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.6 7L12 17.2 5.8 20.9l1.6-7L2 9.2l7.1-.6z"/></svg><span class="lbl">${esc(YOU_ARE_HERE.label)}</span></div>`;
+  if (isTodd && YOU_ARE_HERE.floor === fl.n){
+    pins += `<div class="pin yah" style="${pinStyle(B, YOU_ARE_HERE, inv)}">${STAR}<span class="lbl">${esc(YOU_ARE_HERE.label)}</span></div>`;
   }
-  if (target && tFloor === floor){
-    const right = target.x > 84 ? " right" : "";
-    pins += `<div class="pin target${right}" style="${pinStyle(target)}"><span class="ring"></span><div class="dot"></div><span class="lbl">${esc(targetLabel)}</span></div>`;
+  let origin = "50% 50%";
+  if (target && tFloor === fl.n){
+    const xr = (target.x - B.crop.x0) / (B.crop.x1 - B.crop.x0);
+    const right = xr > 0.84 ? " right" : "";
+    pins += `<div class="pin target${right}${target.approx ? " approx" : ""}" style="${pinStyle(B, target, inv)}"><span class="ring"></span><div class="dot"></div><span class="lbl">${esc(targetLabel)}${target.approx ? " (area)" : ""}</span></div>`;
+    origin = `${pct(target.x,B.crop.x0,B.crop.x1)} ${pct(target.y,B.crop.y0,B.crop.y1)}`;
   }
-  const full = !!(current && current.full);
+  const full = !!current.full;
   const icon = full
     ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>'
     : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>';
+  const zoomBtn = (target && tFloor === fl.n) ? `<button class="mapz" id="mapz">${current.zoom > 1 ? "Zoom out" : "Zoom in"}</button>` : "";
+  const legend = isTodd
+    ? `<span><i style="background:#A8192C"></i>Destination</span><span><i style="background:#1F5FB8"></i>You are here</span><span><i style="background:#F4B6B6"></i>Severe weather shelter</span>`
+    : `<span><i style="background:#A8192C"></i>Destination</span><span><i style="background:#F4B6B6"></i>Severe weather shelter</span><span>${esc(B.name)}</span>`;
   return `<div class="mapcard${full ? " full" : ""}">
-    <div class="floortabs">${tabs}<button class="mapx" id="mapx">${icon}${full ? "Close map" : "Full screen"}</button></div>
-    <div class="mapstage"><div class="mapbox"><img alt="${FLOOR_NAME[floor]} plan of the Todd Center" src="${FLOOR_IMG[floor]}">${pins}</div></div>
-    <div class="maplegend"><span><i style="background:#A8192C"></i>Destination</span><span><i style="background:#1F5FB8"></i>You are here</span><span><i style="background:#F4B6B6"></i>Severe weather shelter</span></div>
+    <div class="floortabs">${tabs}${zoomBtn}<button class="mapx" id="mapx">${icon}${full ? "Close map" : "Full screen"}</button></div>
+    <div class="mapstage"><div class="mapbox" data-ar="${fl.w / fl.h}"><div class="mapzoom" style="transform:scale(${z});transform-origin:${origin}"><img alt="${esc(fl.label)} plan of ${esc(B.name)}" src="${esc(fl.img)}">${pins}</div></div></div>
+    <div class="maplegend">${legend}</div>
   </div>`;
 }
+function fitMaps(){
+  document.querySelectorAll(".mapstage").forEach(st => {
+    const box = st.querySelector(".mapbox"); if (!box) return;
+    const ar = +box.dataset.ar || 1, W = st.clientWidth, H = st.clientHeight;
+    let w = W, h = W / ar; if (h > H){ h = H; w = H * ar; }
+    box.style.width = Math.floor(w) + "px"; box.style.height = Math.floor(h) + "px";
+  });
+}
+window.addEventListener("resize", fitMaps);
 function bindTabs(){
-  document.querySelectorAll(".ft").forEach(b => b.addEventListener("click", () => { current.floor = +b.dataset.floor; render(); }));
+  document.querySelectorAll(".ft[data-floor]").forEach(b => b.addEventListener("click", e => { e.stopPropagation(); current.floor = +b.dataset.floor; render(); }));
   const x = $("#mapx");
   if (x) x.addEventListener("click", () => { current.full = !current.full; render(); });
+  const z = $("#mapz");
+  if (z) z.addEventListener("click", () => { current.zoom = current.zoom > 1 ? 1 : 2.4; render(); });
   const st = document.querySelector(".mapstage");
   if (st && !current.full) st.addEventListener("click", () => { current.full = true; render(); });
+  requestAnimationFrame(fitMaps);
 }
 
-function directions(loc){
+const WING = {A:"A-wing", B:"B-wing", C:"C-wing", D:"D-wing", L:"L-wing", S:"S-wing"};
+function directions(loc, item){
   if (!loc) return "";
-  if (loc.floor === YOU_ARE_HERE.floor) return `<strong>${FLOOR_NAME[loc.floor]} (this floor).</strong> ${esc(loc.area)}`;
-  return `<strong>${FLOOR_NAME[loc.floor]}.</strong> Take the elevator or the spiral stairs in the lobby. ${esc(loc.area)}`;
+  if (loc.b === "todd"){
+    const fn = FLOOR_NAME[loc.f];
+    if (loc.f === YOU_ARE_HERE.floor) return `<strong>${fn} (this floor).</strong> ${esc(loc.area || "")}`;
+    return `<strong>${fn}.</strong> Take the elevator or the spiral stairs in the lobby. ${esc(loc.area || "")}`;
+  }
+  const B = BUILDINGS[loc.b], fl = B.floors.find(f => f.n === loc.f);
+  const head = [B.name, B.floors.length > 1 && fl ? fl.label.toLowerCase() : "", loc.wing ? (WING[loc.wing] || loc.wing + "-wing") : ""].filter(Boolean).join(", ") + ".";
+  const approx = loc.approx ? "The exact room isn't marked on this floor plan, so the pin shows the general area. " : "";
+  const other = B.campus === BH ? "This is in another building on the Benton Harbor campus." : `This is at the ${B.name}.`;
+  return `<strong>${esc(head)}</strong> ${approx}${other}`;
 }
 
 function renderDetail(item){
   show("detail");
-  const away = item.kind === "campus";
+  const bkey = item.bkey || "todd";
   if (item.multi && current.floor == null) current.floor = YOU_ARE_HERE.floor;
-  const loc = item.multi ? ROOMS[item.multi + current.floor] : locOf(item);
+  let loc = null;
+  if (item.multi){ const p = ROOMS[item.multi + current.floor]; loc = p ? {b:"todd", f:p.floor, x:p.x, y:p.y, area:p.area} : null; }
+  else if (item.loc){ const p = ROOMS[item.loc]; loc = p ? {b:"todd", f:p.floor, x:p.x, y:p.y, area:p.area} : null; }
+  else loc = lookupRoom(bkey, item.room);
+
+  const inTodd = bkey === "todd";
+  const where = inTodd ? "Todd Center" : [item.buildingName, item.campus && item.campus !== item.buildingName ? item.campus : ""].filter(Boolean).join(", ");
   let plate;
   if (item.show){
     plate = `<div class="bigroom" style="font-size:clamp(2.8rem,6vw,6rem)">${esc(item.show)}</div><div class="where">Todd Center</div>`;
   } else if (item.room){
-    plate = `<div class="bigroom">${esc(item.room)}</div>
-      <div class="where">${away ? esc(item.where) + ". This office is not in the Todd Center." : "Todd Center"}</div>`;
-  } else if (away){
-    plate = `<div class="bigroom" style="font-size:clamp(2.2rem,4.4vw,4rem);line-height:1">${esc(item.where)}</div>
-      <div class="where">This office is not in the Todd Center.</div>`;
-  } else {
+    plate = `<div class="bigroom${isCode(item.room) ? "" : " txt"}">${esc(item.room)}</div><div class="where">${esc(where || "Room listed in the directory")}</div>`;
+  } else if (inTodd && item.kind === "person"){
     plate = `<div class="bigroom">${HELP_DESK}</div>
       <div class="where">No office is listed. Career &amp; Workforce Education in ${HELP_DESK} can help you reach this person.</div>`;
+  } else {
+    plate = `<div class="bigroom" style="font-size:clamp(2rem,4.2vw,3.8rem);line-height:1">${esc(where || "Location not listed")}</div>
+      <div class="where">No room is listed in the directory${item.phone || item.email ? ". Use the phone or email below." : "."}</div>`;
   }
-  const helpLoc = (!item.room && item.kind === "person") ? ROOMS[HELP_DESK.replace("TC-","")] : null;
+  const helpLoc = (!item.room && inTodd && item.kind === "person") ? (p => ({b:"todd", f:p.floor, x:p.x, y:p.y, area:p.area}))(ROOMS[HELP_DESK.replace("TC-","")]) : null;
   const mapLoc = loc || helpLoc;
   const custom = item.directions ? esc(item.directions) : "";
-  const dir = custom || (item.multi ? `<strong>On both floors.</strong> ${esc(mapLoc.area)}` : (!away ? directions(mapLoc) : ""));
+  const dir = custom || (item.multi && mapLoc ? `<strong>On both floors.</strong> ${esc(mapLoc.area)}` : directions(mapLoc, item));
   if (dir) plate += `<div class="dir">${dir}</div>`;
 
   let dl = "";
   if (item.phone) dl += `<dt>Phone</dt><dd>${esc(item.phone)}</dd>`;
   if (item.email) dl += `<dt>Email</dt><dd>${esc(item.email)}</dd>`;
+  if (item.kind === "person" && item.dept) dl += `<dt>Department</dt><dd>${esc(item.dept)}</dd>`;
   if (item.kind === "person" && item.programs && item.programs.length)
     dl += `<dt>Program</dt><dd>${item.programs.map(p => esc(PROGRAM_LABEL[p])).join(", ")}</dd>`;
-  const note = item.kind === "person"
+  const note = item.kind === "person" && item.room
     ? `<div class="note">Office hours change each semester. Check the schedule posted outside the office or send an email to set a time.</div>` : "";
 
   const left = `<div class="dleft"><div class="plate">${plate}</div>
-    <div class="info"><h2>${esc(item.name)}</h2><div class="title">${esc(away ? "" : item.title)}</div>
+    <div class="info"><h2>${esc(item.name)}</h2><div class="title">${esc(item.title || "")}</div>
     ${dl ? `<dl>${dl}</dl>` : ""}${note}</div></div>`;
 
-  if (mapLoc){
-    if (current.floor == null) current.floor = mapLoc.floor;
-    const label = item.show || (item.room || HELP_DESK);
-    $("#detail").innerHTML = left + mapHTML(current.floor, mapLoc, label, !!item.multi);
+  if (mapLoc && BUILDINGS[mapLoc.b]){
+    if (current.floor == null) current.floor = mapLoc.f;
+    const label = item.show || item.room || HELP_DESK;
+    $("#detail").innerHTML = left + mapHTML(mapLoc.b, current.floor, mapLoc, label, !!item.multi);
     $("#detail").style.gridTemplateColumns = "";
     bindTabs();
   } else {
@@ -474,30 +675,39 @@ function renderDetail(item){
   }
 }
 
-function renderMap(){
-  show("detail");
-  if (current.floor == null) current.floor = YOU_ARE_HERE.floor;
-  const left = `<div class="dleft"><div class="plate"><div class="bigroom" style="font-size:clamp(2.8rem,6vw,6rem)">Building map</div>
-    <div class="where">Todd Center, ground and second floors</div>
-    <div class="dir">Room numbers starting with 1 are on the ground floor. Room numbers starting with 2 are on the second floor. Take the elevator or the spiral stairs in the lobby between floors.</div></div>
+const MAP_INFO = {
+  todd: `<div class="dir">Room numbers starting with 1 are on the ground floor. Room numbers starting with 2 are on the second floor. Take the elevator or the spiral stairs in the lobby between floors.</div></div>
     <div class="info"><h2>What's where</h2><ul>
       <li><b>Ground floor:</b> Career &amp; Workforce Education offices (1201 to 1215), Student Commons, classrooms 1303 to 1413</li>
       <li><b>Second floor:</b> faculty offices (2202 to 2216), Financial Services (2301), Study / TLC Lab, classrooms 2107 to 2413</li>
-      <li><b>Restrooms:</b> north wing on both floors</li></ul></div></div>`;
-  $("#detail").innerHTML = left + mapHTML(current.floor, null, "");
+      <li><b>Restrooms:</b> north wing on both floors</li></ul></div>`,
+  main: `<div class="dir">Rooms are named by wing and floor. In C-229, C is the wing and 2 is the floor.</div></div>
+    <div class="info"><h2>Wings</h2><ul><li><b>A-wing:</b> center, with Student Services and the Welcome Center</li><li><b>B-wing:</b> east</li><li><b>C-wing:</b> west</li><li><b>L-wing:</b> north, with the Library</li><li><b>D-wing:</b> south, with the gym and lecture halls</li></ul></div>`
+};
+function renderMap(){
+  show("detail");
+  const bkey = current.bkey && BUILDINGS[current.bkey] ? current.bkey : "todd";
+  const B = BUILDINGS[bkey];
+  if (current.floor == null) current.floor = bkey === "todd" ? YOU_ARE_HERE.floor : B.floors[0].n;
+  const picker = MAP_ORDER.filter(k => BUILDINGS[k]).map(k => `<button class="chip" data-bk="${k}" aria-pressed="${k===bkey}">${esc(BUILDINGS[k].name)}</button>`).join("");
+  const info = MAP_INFO[bkey] || `<div class="dir">${esc(B.campus)}</div></div><div class="info"></div>`;
+  const left = `<div class="dleft"><div class="chips mapchips">${picker}</div><div class="plate"><div class="bigroom" style="font-size:clamp(2.4rem,5vw,5rem)">${esc(B.name)}</div>
+    <div class="where">${esc(B.floors.map(f => f.label).join(", "))}</div>${info}</div>`;
+  $("#detail").innerHTML = left + mapHTML(bkey, current.floor, null, "");
   $("#detail").style.gridTemplateColumns = "";
+  document.querySelectorAll("[data-bk]").forEach(b => b.addEventListener("click", () => { current.bkey = b.dataset.bk; current.floor = null; current.full = false; render(); }));
   bindTabs();
 }
 
 function score(item, q){
-  const hay = [item.name, item.title, item.room, item.where, item.keywords, (item.programs||[]).join(" ")].join(" ").toLowerCase();
+  const hay = [item.name, item.title, item.dept, item.room, item.buildingName, item.campus, item.keywords, (item.programs||[]).join(" ")].join(" ").toLowerCase();
   const terms = q.toLowerCase().split(/\s+/).filter(Boolean);
   if (!terms.every(t => hay.includes(t) || hay.replace(/-/g,"").includes(t.replace(/-/g,"")))) return -1;
   let s = 0;
   const n = item.name.toLowerCase();
   terms.forEach(t => { if (n.startsWith(t)) s += 5; if (n.split(" ").some(w => w.startsWith(t))) s += 3; });
-  if (item.kind === "person" || item.kind === "office") s += 2;
-  if (item.kind === "place") s += 1;
+  if (item.bkey === "todd") s += 2;
+  else if (item.campus === BH) s += 1;
   return s;
 }
 function renderSearch(){
@@ -505,10 +715,10 @@ function renderSearch(){
   $("#q").textContent = query;
   const R = $("#results");
   if (!query.trim()){
-    R.innerHTML = `<div class="empty">Type a last name, an office like "Foundation," or a room number like "2214."</div>`;
+    R.innerHTML = `<div class="empty">Type a last name, an office like "Financial Aid," or a room number like "2214."</div>`;
     return;
   }
-  const items = ALL.map(i => [score(i, query), i]).filter(x => x[0] >= 0).sort((a,b) => b[0]-a[0] || a[1].name.localeCompare(b[1].name)).map(x => x[1]);
+  const items = ALL.map(i => [score(i, query), i]).filter(x => x[0] >= 0).sort((a,b) => b[0]-a[0] || a[1].name.localeCompare(b[1].name)).slice(0, 60).map(x => x[1]);
   if (!items.length){
     R.innerHTML = `<div class="empty">Nothing matches "${esc(query)}." Check the spelling, try fewer letters, or ask at Career &amp; Workforce Education in ${HELP_DESK}.</div>`;
     return;
@@ -539,16 +749,18 @@ function render(){
   else if (s.view === "detail") renderDetail(s.item);
   else if (s.view === "map") renderMap();
   else if (s.view === "people"){
-    renderList("Find a person", "Sorted by last name", PEOPLE.map(p => ({...p, kind:"person"})).sort(byName));
+    const people = DIR.filter(d => d.kind === "person");
+    renderList("Find a person", "Benton Harbor campus first, sorted by last name", grouped(people, byName), {letters:true, loading:!dirLoaded});
   } else if (s.view === "offices"){
-    const items = [...OFFICES.map(o => ({...o, kind:"office"})), ...PLACES.map(p => ({...p, kind:"place"}))];
+    const items = [...DIR.filter(d => d.kind === "office" && d.bkey === "todd").sort((a,b) => a.name.localeCompare(b.name)), ...PLACES.map(p => ({...p, kind:"place", bkey:"todd", campus:BH, buildingName:"Todd Center"}))];
     renderList("Offices & rooms", "Everything in the Todd Center", items);
   } else if (s.view === "programs"){
     if (s.prog) progFilter = s.prog;
-    const items = PEOPLE.filter(p => p.programs.includes(progFilter)).map(p => ({...p, kind:"person"})).sort(byName);
-    renderList("Programs", "Faculty and staff by program", items, true);
+    const items = DIR.filter(p => p.kind === "person" && p.programs.includes(progFilter)).sort(byName);
+    renderList("Programs", "Faculty and staff by program", items, {programs:true, loading:!dirLoaded, empty:"No one is listed for this program."});
   } else if (s.view === "campus"){
-    renderList("Elsewhere on campus", "These offices are in other buildings", CAMPUS.map(c => ({...c, kind:"campus", title:c.where})));
+    const offices = DIR.filter(d => d.kind === "office" && d.bkey !== "todd");
+    renderList("Elsewhere on campus", "Offices in other buildings and at other campuses", grouped(offices, (a,b) => a.name.localeCompare(b.name)), {loading:!dirLoaded});
   }
 }
 
@@ -559,10 +771,13 @@ document.querySelectorAll("[data-go]").forEach(b => b.addEventListener("click", 
 }));
 document.querySelectorAll("[data-place]").forEach(b => b.addEventListener("click", () => {
   const item = PLACES.find(p => p.id === b.dataset.place);
-  go({view:"detail", item:{...item, kind:"place"}});
+  go({view:"detail", item:{...item, kind:"place", bkey:"todd", campus:BH, buildingName:"Todd Center"}});
 }));
 $("#back").addEventListener("click", back);
 $("#home").addEventListener("click", goHome);
+loadBuildings().then(() => { if (current && (current.view === "detail" || current.view === "map")) render(); });
+loadDirectory();
+setInterval(loadDirectory, 60 * 60 * 1000);
 
 /* Clock */
 function tick(){
@@ -740,6 +955,9 @@ setInterval(renderEvents, 60 * 1000);
 
 
 /* Auto-update: reload when index.html or data.js changes on the server */
+/* Kiosk version: update this and CHANGELOG.md with every release. */
+const KIOSK_VERSION = "2.0.0";
+document.getElementById("kiosk-version").textContent = "v" + KIOSK_VERSION;
 const UPDATE_CHECK_MINUTES = 15;
 let updatePending = false, siteSig = null;
 function hashText(t){ let h = 5381; for (let i = 0; i < t.length; i++) h = ((h << 5) + h + t.charCodeAt(i)) | 0; return h + ":" + t.length; }
@@ -779,8 +997,6 @@ document.addEventListener("keydown", e => {
   renderSearch();
 });
 
-/* Floor plan images (from the Todd Center emergency plan) */
-const FLOOR_IMG = {1:"floor-ground.jpg", 2:"floor-second.jpg"};
 
 buildKeyboard();
 goHome();
