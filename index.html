@@ -76,6 +76,9 @@ main{overflow:hidden;position:relative}
 .vhead h2{margin:0;font-weight:900;font-size:clamp(1.8rem,3.4vw,3rem)}
 .vhead p{margin:.4rem 0 0;color:var(--muted);font-size:clamp(1rem,1.4vw,1.3rem)}
 .vhead{align-items:center}
+.vtools{display:flex;align-items:center;gap:1rem;flex:none}
+.searchbtn{display:flex;align-items:center;gap:.6rem;border:0;border-radius:999px;background:var(--red);color:var(--red-ink);padding:.75rem 1.6rem;font-size:clamp(1.05rem,1.6vw,1.45rem);font-weight:800}
+.searchbtn svg{width:1.2em;height:1.2em}
 .seg{display:flex;flex:none;border:3px solid var(--ink);border-radius:999px;overflow:hidden}
 .seg button{border:0;background:var(--panel);padding:.7rem 1.5rem;font-size:clamp(1.05rem,1.6vw,1.45rem);font-weight:800}
 .seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
@@ -169,7 +172,7 @@ main{overflow:hidden;position:relative}
 
 /* Home layout + Today's events */
 #v-home{overflow:hidden}
-.homegrid{display:grid;grid-template-columns:minmax(0,1.75fr) minmax(0,1fr);gap:clamp(1rem,2vw,2rem);height:100%;min-height:0}
+.homegrid{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:clamp(1rem,2vw,2rem);height:100%;min-height:0}
 .homemain{display:flex;flex-direction:column;min-height:0}
 .homemain .tiles{flex:1;min-height:0}
 .homemain .tile{min-height:0}
@@ -202,8 +205,8 @@ main{overflow:hidden;position:relative}
 
 /* Home sizing fix: scale with screen height too, never let tiles shrink below their text */
 .search-launch{font-size:clamp(1.1rem,min(1.8vw,3.2vh),2rem);padding:clamp(.8rem,min(1.4vw,2.4vh),1.4rem) clamp(1rem,1.8vw,1.8rem)}
-.homemain{min-height:0;display:grid;grid-template-rows:minmax(min-content,1fr) auto;overflow-y:auto;overflow-x:hidden}
-.homemain .tiles{flex:none;min-height:auto;grid-auto-rows:1fr;margin-top:0;gap:clamp(.7rem,min(1.4vw,2.2vh),1.4rem)}
+.homemain{min-height:0;display:grid;grid-template-rows:auto auto;align-content:start;overflow-y:auto;overflow-x:hidden}
+.homemain .tiles{flex:none;min-height:auto;grid-auto-rows:minmax(min-content,clamp(150px,25vh,260px));margin-top:0;gap:clamp(.7rem,min(1.4vw,2.2vh),1.4rem)}
 .homemain .tile{min-height:auto;justify-content:flex-start;gap:.5em;padding:clamp(.9rem,min(1.6vw,2.6vh),2.2rem)}
 .homemain .tile b{font-size:clamp(1.3rem,min(2.1vw,3.9vh),2.9rem);line-height:1.05}
 .homemain .tile span{font-size:clamp(.95rem,min(1.15vw,2.2vh),1.35rem);line-height:1.3}
@@ -219,7 +222,7 @@ main{overflow:hidden;position:relative}
 .search-results .row .n{font-size:clamp(1.2rem,1.9vw,1.7rem)}
 .search-results .room{font-size:clamp(1.4rem,2.4vw,2.2rem)}
 .searchbox .q{font-size:clamp(1.5rem,2.6vw,2.4rem);font-weight:800;min-height:1.2em}
-.searchbox .q:empty::before{content:"Start typing a name, office, or room";color:var(--muted);font-weight:600}
+.searchbox .q:empty::before{content:attr(data-ph);color:var(--muted);font-weight:600}
 .caret{display:inline-block;width:3px;height:1.1em;background:var(--red);vertical-align:-.15em;margin-left:2px;animation:blink 1s steps(1) infinite}
 @keyframes blink{50%{opacity:0}}
 .search-wrap{display:grid;grid-template-rows:auto 1fr auto;height:100%;gap:0}
@@ -307,7 +310,7 @@ footer small{color:var(--muted);font-size:clamp(.85rem,1.1vw,1rem);max-width:40c
     </section>
 
     <section class="view hidden" id="v-list">
-      <div class="vhead"><div><h2 id="list-title"></h2><p id="list-sub"></p></div><div class="seg hidden" id="scope" role="group" aria-label="Show people from"></div></div>
+      <div class="vhead"><div><h2 id="list-title"></h2><p id="list-sub"></p></div><div class="vtools"><button class="searchbtn hidden" id="list-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg><span></span></button><div class="seg hidden" id="scope" role="group" aria-label="Show people from"></div></div></div>
       <div class="chips" id="chips"></div>
       <div class="list" id="list"></div>
     </section>
@@ -551,6 +554,12 @@ function renderList(title, sub, items, opts = {}){
       if (row) v.scrollTo({top: v.scrollTop + row.getBoundingClientRect().top - v.getBoundingClientRect().top - $("#chips").offsetHeight - 12, behavior:"smooth"});
     }));
   } else ch.classList.add("hidden");
+  const sb = $("#list-search");
+  if (opts.search){
+    sb.classList.remove("hidden");
+    sb.querySelector("span").textContent = SEARCH[opts.search].button;
+    sb.onclick = () => { query = ""; go({view:"search", filter:opts.search, scope:opts.scope || "todd"}); };
+  } else sb.classList.add("hidden");
   const sc = $("#scope");
   if (opts.scope){ sc.classList.remove("hidden"); scopeSwitch(sc, opts.scope); }
   else sc.classList.add("hidden");
@@ -744,18 +753,27 @@ function score(item, q){
   else if (item.campus === BH) s += 1;
   return s;
 }
+/* Each section's search: which entries it covers and what it tells the visitor. */
+const SEARCH = {
+  people: {button:"Search people", match: i => i.kind === "person", ph:"Type a name",
+    hint:'Type a first or last name, like "Kelly."'},
+  places: {button:"Search offices & rooms", match: i => i.kind !== "person", ph:"Type an office or room",
+    hint:'Type an office like "Financial Aid," a room like "Commons," or a room number like "1303."'}
+};
 function renderSearch(){
   show("search");
+  const S = SEARCH[current.filter] || SEARCH.people;
   $("#q").textContent = query;
+  $("#q").dataset.ph = S.ph;
   const R = $("#results"), C = $("#qcount");
   const scope = current.scope || "todd", inTodd = scope === "todd";
   scopeSwitch($("#sscope"), scope);
   C.textContent = "";
   if (!query.trim()){
-    R.innerHTML = `<div class="empty">Type a last name, an office like "Financial Aid," or a room number like "2214."${inTodd ? " Showing the Todd Center. Touch All of LMC to search the whole college." : ""}</div>`;
+    R.innerHTML = `<div class="empty">${esc(S.hint)}${inTodd ? " Showing the Todd Center. Touch All of LMC to search the whole college." : ""}</div>`;
     return;
   }
-  const all = ALL.map(i => [score(i, query), i]).filter(x => x[0] >= 0).sort((a,b) => b[0]-a[0] || a[1].name.localeCompare(b[1].name)).map(x => x[1]);
+  const all = ALL.filter(S.match).map(i => [score(i, query), i]).filter(x => x[0] >= 0).sort((a,b) => b[0]-a[0] || a[1].name.localeCompare(b[1].name)).map(x => x[1]);
   const here = all.filter(i => i.bkey === "todd");
   const items = (inTodd ? here : all).slice(0, 60);
   const elsewhere = all.length - here.length;
@@ -800,14 +818,14 @@ function render(){
     const scope = s.scope || "todd";
     const people = DIR.filter(d => d.kind === "person" && (scope === "all" || d.bkey === "todd"));
     if (scope === "all")
-      renderList("Find a person", "Everyone in the LMC directory. Benton Harbor campus first, sorted by last name", grouped(people, byName), {letters:true, scope, loading:!dirLoaded});
+      renderList("Find a person", "Everyone in the LMC directory. Benton Harbor campus first, sorted by last name", grouped(people, byName), {letters:true, scope, search:"people", loading:!dirLoaded});
     else
-      renderList("Find a person", "Faculty and staff in the Todd Center, sorted by last name", people.sort(byName), {letters:true, scope, loading:!dirLoaded,
+      renderList("Find a person", "Faculty and staff in the Todd Center, sorted by last name", people.sort(byName), {letters:true, scope, search:"people", loading:!dirLoaded,
         empty:"No one in the directory is listed in the Todd Center.",
         more:{label:"Not listed here? Show everyone at LMC", go:() => { current.scope = "all"; render(); }}});
   } else if (s.view === "offices"){
     const items = [...DIR.filter(d => d.kind === "office" && d.bkey === "todd").sort((a,b) => a.name.localeCompare(b.name)), ...PLACES.map(p => ({...p, kind:"place", bkey:"todd", campus:BH, buildingName:"Todd Center"}))];
-    renderList("Offices & rooms", "Everything in the Todd Center", items);
+    renderList("Offices & rooms", "Everything in the Todd Center", items, {search:"places"});
   } else if (s.view === "programs"){
     if (s.prog) progFilter = s.prog;
     const items = DIR.filter(p => p.kind === "person" && p.programs.includes(progFilter)).sort(byName);
@@ -1017,7 +1035,7 @@ setInterval(renderEvents, 60 * 1000);
 
 /* Auto-update: reload when index.html or data.js changes on the server */
 /* Kiosk version: update this and CHANGELOG.md with every release. */
-const KIOSK_VERSION = "2.3.1";
+const KIOSK_VERSION = "2.4.0";
 document.getElementById("kiosk-version").textContent = "v" + KIOSK_VERSION;
 const UPDATE_CHECK_MINUTES = 15;
 let updatePending = false, siteSig = null;

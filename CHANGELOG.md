@@ -8,6 +8,10 @@ Versions use MAJOR.MINOR.PATCH. The current version shows in the kiosk footer an
 
 When you release a change, update `KIOSK_VERSION`, add an entry here, and start the commit message with the version, for example `v2.0.1: fix room for Financial Aid`.
 
+## v2.4.0 (2026-10-15)
+- Search people button on Find a person and Search offices & rooms button on Offices & rooms, each searching only its own section (Todd Center first, with the All of LMC switch)
+- Smaller home tiles; the events panel is wider
+
 ## v2.3.1 (2026-10-15)
 - Shorter header, so more of each screen is content
 - Always shown in light mode, even if the board's system setting is dark
