@@ -8,6 +8,12 @@ Versions use MAJOR.MINOR.PATCH. The current version shows in the kiosk footer an
 
 When you release a change, update `KIOSK_VERSION`, add an entry here, and start the commit message with the version, for example `v2.0.1: fix room for Financial Aid`.
 
+## v2.5.0 (2026-10-15)
+- Upcoming events: "See upcoming events" on the home page opens a monthly calendar of Todd Center events; touch a day to see its events, and touch an event with a room to see it on the map
+- Upcoming events come from `upcoming.json`, filled nightly by the new GitHub Action `Update upcoming events` (about two months ahead)
+- Search buttons on Programs and Elsewhere on campus
+- All four home tiles are navy with a red top stripe
+
 ## v2.4.0 (2026-10-15)
 - Search people button on Find a person and Search offices & rooms button on Offices & rooms, each searching only its own section (Todd Center first, with the All of LMC switch)
 - Smaller home tiles; the events panel is wider

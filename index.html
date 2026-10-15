@@ -67,7 +67,7 @@ main{overflow:hidden;position:relative}
   padding:clamp(1.2rem,2.6vw,2.4rem);min-height:clamp(140px,22vh,260px);
   display:flex;flex-direction:column;justify-content:space-between;
 }
-.tile.primary{background:var(--red);color:var(--red-ink)}
+.tile{border-top:12px solid var(--red)}
 .tile b{font-weight:900;font-size:clamp(1.8rem,3.4vw,3.2rem);line-height:1}
 .tile span{font-size:clamp(1rem,1.6vw,1.45rem);opacity:.85;max-width:34ch;line-height:1.35}
 
@@ -180,7 +180,7 @@ main{overflow:hidden;position:relative}
 .ev-head{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;padding:clamp(1rem,1.8vw,1.5rem) clamp(1rem,1.8vw,1.5rem) .6rem}
 .ev-head h2{margin:0;font-weight:900;font-size:clamp(1.6rem,2.6vw,2.4rem);line-height:1}
 .ev-head span{color:var(--muted);font-size:clamp(.85rem,1.1vw,1rem);text-align:right}
-.ev-list{overflow-y:auto;min-height:0;padding:0 clamp(.6rem,1.2vw,1rem) clamp(.6rem,1.2vw,1rem)}
+.ev-list{flex:1;overflow-y:auto;min-height:0;padding:0 clamp(.6rem,1.2vw,1rem) clamp(.6rem,1.2vw,1rem)}
 .ev{display:grid;grid-template-columns:clamp(6.6rem,8.6vw,8.6rem) minmax(0,1fr);gap:1rem;width:100%;text-align:left;border:0;background:transparent;border-bottom:2px solid var(--line);padding:clamp(.8rem,1.3vw,1.1rem) .5rem}
 .ev:last-child{border-bottom:0}
 .ev.noroom{cursor:default}
@@ -213,6 +213,27 @@ main{overflow:hidden;position:relative}
 .homemain .quick{margin-top:clamp(.7rem,min(1.4vw,2.2vh),1.4rem)}
 .homemain .qb{font-size:clamp(1rem,min(1.4vw,2.6vh),1.6rem);padding:clamp(.7rem,min(1.2vw,2vh),1.2rem)}
 .ev-head h2{font-size:clamp(1.4rem,min(2vw,3.8vh),2.4rem)}
+/* Upcoming events calendar */
+.ev-more{flex:none;display:flex;align-items:center;justify-content:space-between;gap:1rem;margin:.6rem clamp(.6rem,1.2vw,1rem) clamp(.6rem,1.2vw,1rem);border:3px solid var(--ink);background:transparent;border-radius:12px;padding:clamp(.7rem,1.2vw,1rem) clamp(1rem,1.6vw,1.4rem);font-size:clamp(1.05rem,1.6vw,1.45rem);font-weight:800;text-align:left}
+.ev-more svg{width:1.1em;height:1.1em;flex:none}
+#v-cal{display:flex;flex-direction:column}
+.calwrap{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:clamp(1rem,2vw,2rem)}
+.calcard{background:var(--panel);border-radius:14px;padding:clamp(1rem,1.6vw,1.5rem);display:flex;flex-direction:column;min-height:0}
+.calnav{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:.8rem}
+.calnav h3{margin:0;font-weight:900;font-size:clamp(1.5rem,2.4vw,2.2rem)}
+.calnav button{border:3px solid var(--ink);background:transparent;border-radius:12px;padding:.5rem 1.2rem;font-size:clamp(1.05rem,1.6vw,1.4rem);font-weight:800}
+.calnav button[disabled]{opacity:.25}
+.calweek,.calgrid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:.4rem}
+.calweek{margin-bottom:.4rem;text-align:center;font-weight:800;color:var(--muted);font-size:clamp(.9rem,1.2vw,1.1rem)}
+.calgrid{flex:1;min-height:0;grid-auto-rows:minmax(3rem,1fr)}
+.cday{border:0;border-radius:10px;background:var(--key);display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between;padding:.4rem .6rem;font-size:clamp(1.05rem,1.6vw,1.45rem);font-weight:800;text-align:left}
+.cday.blank{visibility:hidden}
+.cday[disabled]{opacity:.35;cursor:default}
+.cday.today{box-shadow:inset 0 0 0 3px var(--red)}
+.cday[aria-pressed="true"]{background:var(--plate);color:var(--plate-ink)}
+.cday .cnt{align-self:flex-end;font-size:.72em;background:var(--red);color:#fff;border-radius:999px;padding:.05em .6em}
+.calnote{margin:.8rem 0 0;color:var(--muted);font-size:clamp(.9rem,1.2vw,1.1rem);line-height:1.35}
+.calwrap .events-panel .ev-head h2{font-size:clamp(1.3rem,2vw,2rem)}
 /* Search + keyboard */
 .searchbox{display:flex;align-items:center;gap:1rem;background:var(--panel);border:3px solid var(--ink);border-radius:14px;padding:1rem 1.4rem;margin-bottom:1rem;min-height:4.4rem}
 .searchrow{display:flex;align-items:center;gap:1rem;margin-bottom:1rem}
@@ -268,6 +289,7 @@ footer small{color:var(--muted);font-size:clamp(.85rem,1.1vw,1rem);max-width:40c
   .mapstage{height:70vh;flex:none}
   .quick{flex-direction:column}
   .homegrid{grid-template-columns:1fr;height:auto}
+  .calwrap{grid-template-columns:1fr}
   #v-home{overflow-y:auto}
   .events-panel{max-height:none}
   header{flex-direction:column;align-items:flex-start}
@@ -291,7 +313,7 @@ footer small{color:var(--muted);font-size:clamp(.85rem,1.1vw,1rem);max-width:40c
       <div class="homegrid">
         <div class="homemain">
       <div class="tiles">
-        <button class="tile primary" data-go="people"><b>Find a person</b><span>Faculty and staff in the Todd Center, or anyone at LMC</span></button>
+        <button class="tile" data-go="people"><b>Find a person</b><span>Faculty and staff in the Todd Center, or anyone at LMC</span></button>
         <button class="tile" data-go="offices"><b>Offices &amp; rooms</b><span>Offices, classrooms, study areas, and meeting rooms in the Todd Center</span></button>
         <button class="tile" data-go="programs"><b>Programs</b><span>Business, Computer Information Systems, Criminal Justice, Esports</span></button>
         <button class="tile" data-go="campus"><b>Elsewhere on campus</b><span>Financial Aid, Registration, Library, Bookstore, Tutoring</span></button>
@@ -305,6 +327,8 @@ footer small{color:var(--muted);font-size:clamp(.85rem,1.1vw,1rem);max-width:40c
         <aside class="events-panel" aria-label="Today's events">
           <div class="ev-head"><h2>Today's events</h2><span id="events-status"></span></div>
           <div class="ev-list" id="events"></div>
+          <button class="ev-more" data-go="calendar">See upcoming events
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
         </aside>
       </div>
     </section>
@@ -324,6 +348,11 @@ footer small{color:var(--muted);font-size:clamp(.85rem,1.1vw,1rem);max-width:40c
         <div class="search-results"><div class="list" id="results"></div></div>
         <div class="kbd" id="kbd"></div>
       </div>
+    </section>
+
+    <section class="view hidden" id="v-cal">
+      <div class="vhead"><div><h2>Upcoming events</h2><p>Events in the Todd Center from the LMC calendar. Touch a day to see what's on.</p></div></div>
+      <div class="calwrap" id="cal"></div>
     </section>
 
     <section class="view hidden" id="v-detail"><div class="detail" id="detail"></div></section>
@@ -733,7 +762,7 @@ function renderMap(){
 }
 
 function score(item, q){
-  const hay = [item.name, item.title, item.dept, item.room, item.buildingName, item.campus, item.keywords, (item.programs||[]).join(" ")].join(" ").toLowerCase();
+  const hay = [item.name, item.title, item.dept, item.room, item.buildingName, item.campus, item.keywords, (item.programs||[]).map(p => p + " " + (PROGRAM_LABEL[p] || "")).join(" ")].join(" ").toLowerCase();
   const terms = q.toLowerCase().split(/\s+/).filter(Boolean);
   if (!terms.every(t => hay.includes(t) || hay.replace(/-/g,"").includes(t.replace(/-/g,"")))) return -1;
   /* Name matches rank first (last name above first name), then room numbers.
@@ -758,7 +787,11 @@ const SEARCH = {
   people: {button:"Search people", match: i => i.kind === "person", ph:"Type a name",
     hint:'Type a first or last name, like "Kelly."'},
   places: {button:"Search offices & rooms", match: i => i.kind !== "person", ph:"Type an office or room",
-    hint:'Type an office like "Financial Aid," a room like "Commons," or a room number like "1303."'}
+    hint:'Type an office like "Financial Aid," a room like "Commons," or a room number like "1303."'},
+  programs: {button:"Search programs", match: i => i.kind === "person" && i.programs && i.programs.length, scope:false,
+    ph:"Type a name or program", hint:'Type a name, or a program like "CIS" or "Criminal Justice."'},
+  campus: {button:"Search offices", match: i => i.kind === "office" && i.bkey !== "todd", scope:false,
+    ph:"Type an office", hint:'Type an office, like "Financial Aid" or "Library."'}
 };
 function renderSearch(){
   show("search");
@@ -766,8 +799,10 @@ function renderSearch(){
   $("#q").textContent = query;
   $("#q").dataset.ph = S.ph;
   const R = $("#results"), C = $("#qcount");
-  const scope = current.scope || "todd", inTodd = scope === "todd";
-  scopeSwitch($("#sscope"), scope);
+  const scoped = S.scope !== false;
+  const scope = scoped ? (current.scope || "todd") : "all", inTodd = scope === "todd";
+  const ss = $("#sscope");
+  if (scoped){ ss.classList.remove("hidden"); scopeSwitch(ss, scope); } else ss.classList.add("hidden");
   C.textContent = "";
   if (!query.trim()){
     R.innerHTML = `<div class="empty">${esc(S.hint)}${inTodd ? " Showing the Todd Center. Touch All of LMC to search the whole college." : ""}</div>`;
@@ -814,6 +849,7 @@ function render(){
   else if (s.view === "search") renderSearch();
   else if (s.view === "detail") renderDetail(s.item);
   else if (s.view === "map") renderMap();
+  else if (s.view === "calendar") renderCalendar();
   else if (s.view === "people"){
     const scope = s.scope || "todd";
     const people = DIR.filter(d => d.kind === "person" && (scope === "all" || d.bkey === "todd"));
@@ -829,10 +865,10 @@ function render(){
   } else if (s.view === "programs"){
     if (s.prog) progFilter = s.prog;
     const items = DIR.filter(p => p.kind === "person" && p.programs.includes(progFilter)).sort(byName);
-    renderList("Programs", "Faculty and staff by program", items, {programs:true, loading:!dirLoaded, empty:"No one is listed for this program."});
+    renderList("Programs", "Faculty and staff by program", items, {programs:true, search:"programs", loading:!dirLoaded, empty:"No one is listed for this program."});
   } else if (s.view === "campus"){
     const offices = DIR.filter(d => d.kind === "office" && d.bkey !== "todd");
-    renderList("Elsewhere on campus", "Offices in other buildings and at other campuses", grouped(offices, (a,b) => a.name.localeCompare(b.name)), {loading:!dirLoaded});
+    renderList("Elsewhere on campus", "Offices in other buildings and at other campuses", grouped(offices, (a,b) => a.name.localeCompare(b.name)), {search:"campus", loading:!dirLoaded});
   }
 }
 
@@ -957,6 +993,25 @@ const SPACE_PROMO = `<div class="ev-promo">
   <div class="qr"><img src="qr-space-use.svg" alt="QR code to request a space">
     <div><b>Scan with your phone camera to request a space.</b><div class="url">lakemichigancollege.edu/<wbr>community/<wbr>space-use</div></div></div>
 </div>`;
+function eventRowHTML(e, i){
+  const room = roomFromLocation(e.location);
+  const time = e.start == null ? "All day" : fmtTime(e.start);
+  const until = e.end != null ? `until ${fmtTime(e.end)}` : "";
+  return `<button class="ev${e.now ? " now" : ""}${room ? "" : " noroom"}" data-ev="${i}" ${room ? "" : "tabindex=\"-1\""}>
+    <div class="ev-time"><b>${esc(time)}</b><span>${e.now ? "Now" + (e.end != null ? ", until " + fmtTime(e.end) : "") : esc(until)}</span></div>
+    <div class="ev-body"><div class="ev-title">${esc(e.title)}</div>
+      ${e.location ? `<div class="ev-loc">${esc(e.location)}${room ? '<span class="ev-map">Map</span>' : ""}</div>` : ""}
+      ${e.details ? `<div class="ev-det">${esc(e.details)}</div>` : ""}</div>
+  </button>`;
+}
+/* Events with a Todd Center room open that room on the map. */
+function bindEventRows(box, list){
+  box.querySelectorAll(".ev").forEach(b => b.addEventListener("click", () => {
+    const e = list[+b.dataset.ev]; const room = roomFromLocation(e.location);
+    if (!room) return;
+    go({view:"detail", item:{kind:"place", name:e.title, title:[e.start!=null?fmtTime(e.start)+(e.end!=null?" to "+fmtTime(e.end):""):"", e.details].filter(Boolean).join(". "), room:"TC-"+room}});
+  }));
+}
 function renderEvents(){
   const box = $("#events"); if (!box) return;
   const list = todaysEvents();
@@ -969,24 +1024,10 @@ function renderEvents(){
   } else if (!list.length){
     h = `<div class="ev-empty">${today ? "That's all for today." : "No events are scheduled in the Todd Center today."}</div>${SPACE_PROMO}`;
   } else {
-    h = list.map((e, i) => {
-      const room = roomFromLocation(e.location);
-      const time = e.start == null ? "All day" : fmtTime(e.start);
-      const until = e.end != null ? `until ${fmtTime(e.end)}` : "";
-      return `<button class="ev${e.now ? " now" : ""}${room ? "" : " noroom"}" data-ev="${i}" ${room ? "" : "tabindex=\"-1\""}>
-        <div class="ev-time"><b>${esc(time)}</b><span>${e.now ? "Now" + (e.end != null ? ", until " + fmtTime(e.end) : "") : esc(until)}</span></div>
-        <div class="ev-body"><div class="ev-title">${esc(e.title)}</div>
-          ${e.location ? `<div class="ev-loc">${esc(e.location)}${room ? '<span class="ev-map">Map</span>' : ""}</div>` : ""}
-          ${e.details ? `<div class="ev-det">${esc(e.details)}</div>` : ""}</div>
-      </button>`;
-    }).join("");
+    h = list.map(eventRowHTML).join("");
   }
   box.innerHTML = h;
-  box.querySelectorAll(".ev").forEach(b => b.addEventListener("click", () => {
-    const e = list[+b.dataset.ev]; const room = roomFromLocation(e.location);
-    if (!room) return;
-    go({view:"detail", item:{kind:"place", name:e.title, title:[e.start!=null?fmtTime(e.start)+(e.end!=null?" to "+fmtTime(e.end):""):"", e.details].filter(Boolean).join(". "), room:"TC-"+room}});
-  }));
+  bindEventRows(box, list);
   const st = $("#events-status");
   if (st) st.textContent = eventsError && eventsLoaded ? "Showing the last saved list" : "";
 }
@@ -1032,10 +1073,112 @@ loadEvents();
 setInterval(loadEvents, EVENTS_REFRESH_MINUTES * 60 * 1000);
 setInterval(renderEvents, 60 * 1000);
 
+/* =========================================================
+   UPCOMING EVENTS CALENDAR
+   upcoming.json is filled nightly by the "Update upcoming events"
+   Action (about two months ahead). Today and tomorrow come from
+   events.json, which is fresher.
+   ========================================================= */
+const pad2 = n => String(n).padStart(2, "0");
+const dayKey = d => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+const evKey = e => e.key || dayKey(new Date(e.date));
+let UPCOMING = [], upcomingDates = [];
+async function loadUpcoming(){
+  if (EVENTS_CSV_URL) return;   // a Google Sheet already holds every date
+  try {
+    const res = await fetch("upcoming.json?_=" + Date.now(), {cache:"no-store"});
+    if (!res.ok) throw new Error("upcoming.json HTTP " + res.status);
+    const j = await res.json();
+    upcomingDates = Array.isArray(j.dates) ? j.dates : [];
+    UPCOMING = (j.events || []).map(e => {
+      const d = parseDate(e.date);
+      return d ? {key: dayKey(d), date: d.toDateString(), start: parseTime(e.start), end: parseTime(e.end), title: e.title || "", location: e.location || "", details: e.details || ""} : null;
+    }).filter(Boolean);
+    try { localStorage.setItem("toddKioskUpcoming", JSON.stringify({events:UPCOMING, dates:upcomingDates})); } catch(_){}
+  } catch (err){
+    console.warn("Upcoming events load failed:", err.message || err);
+    if (!UPCOMING.length){
+      try { const c = JSON.parse(localStorage.getItem("toddKioskUpcoming") || "null"); if (c){ UPCOMING = c.events || []; upcomingDates = c.dates || []; } } catch(_){}
+    }
+  }
+  if (current && current.view === "calendar") render();
+}
+loadUpcoming();
+setInterval(loadUpcoming, 60 * 60 * 1000);
+
+/* Every known event by day, and which days the data actually covers. */
+function eventsByDay(){
+  const map = {}, add = e => (map[evKey(e)] = map[evKey(e)] || []).push(e);
+  let covered;
+  if (EVENTS_CSV_URL){ EVENTS.forEach(add); covered = () => true; }
+  else {
+    const near = new Set(calendarDates);
+    UPCOMING.filter(e => !near.has(e.key)).forEach(add);
+    EVENTS.forEach(add);
+    const all = new Set([...calendarDates, ...upcomingDates]);
+    covered = k => all.has(k);
+  }
+  Object.values(map).forEach(l => l.sort((a,b) => (a.start ?? -1) - (b.start ?? -1)));
+  return {map, covered};
+}
+
+function renderCalendar(){
+  show("cal");
+  const {map, covered} = eventsByDay();
+  const now = new Date(), todayK = dayKey(now);
+  const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const lastKey = EVENTS_CSV_URL ? Object.keys(map).sort().pop() : [...calendarDates, ...upcomingDates].sort().pop();
+  const last = lastKey ? parseDate(lastKey) : now;
+  const maxMonth = new Date(Math.max(+thisMonth, +new Date(last.getFullYear(), last.getMonth(), 1)));
+  if (!current.month) current.month = dayKey(thisMonth);
+  if (!current.day) current.day = todayK;
+  const m = parseDate(current.month), y = m.getFullYear(), mo = m.getMonth();
+  const monthName = m.toLocaleDateString([], {month:"long", year:"numeric"});
+  const days = new Date(y, mo + 1, 0).getDate(), lead = new Date(y, mo, 1).getDay();
+
+  let cells = "";
+  for (let i = 0; i < lead; i++) cells += `<span class="cday blank"></span>`;
+  for (let d = 1; d <= days; d++){
+    const date = new Date(y, mo, d), k = dayKey(date), n = (map[k] || []).length;
+    const off = k < todayK || !covered(k);
+    const label = date.toLocaleDateString([], {weekday:"long", month:"long", day:"numeric"}) + (off ? "" : n ? `, ${n} event${n > 1 ? "s" : ""}` : ", no events");
+    cells += `<button class="cday${k === todayK ? " today" : ""}" data-day="${k}" aria-pressed="${k === current.day}" aria-label="${esc(label)}" ${off ? "disabled" : ""}>
+      <span>${d}</span>${n && !off ? `<span class="cnt">${n}</span>` : ""}</button>`;
+  }
+  const lastShown = lastKey ? parseDate(lastKey).toLocaleDateString([], {month:"long", day:"numeric"}) : "";
+  const note = !lastKey ? "Upcoming events will appear after the next nightly update."
+    : `Red numbers show how many events are on that day. The calendar runs through ${esc(lastShown)}.`;
+
+  const sel = parseDate(current.day), list = covered(current.day) ? (map[current.day] || []) : null;
+  const selName = current.day === todayK ? "Today" : sel.toLocaleDateString([], {weekday:"long", month:"long", day:"numeric"});
+  const nowMins = now.getHours() * 60 + now.getMinutes();
+  const shown = (list || []).map(e => ({...e, now: current.day === todayK && e.start != null && e.start <= nowMins && (e.end == null || e.end > nowMins)}));
+  const dayBody = list === null ? `<div class="ev-empty">Events for this day aren't available yet.</div>`
+    : shown.length ? shown.map(eventRowHTML).join("")
+    : `<div class="ev-empty">No events are scheduled in the Todd Center on this day.</div>${SPACE_PROMO}`;
+
+  $("#cal").innerHTML = `<div class="calcard">
+      <div class="calnav">
+        <button id="cal-prev" ${+m <= +thisMonth ? "disabled" : ""} aria-label="Previous month">&lsaquo; Prev</button>
+        <h3>${esc(monthName)}</h3>
+        <button id="cal-next" ${+m >= +maxMonth ? "disabled" : ""} aria-label="Next month">Next &rsaquo;</button>
+      </div>
+      <div class="calweek" aria-hidden="true">${["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].map(w => `<span>${w}</span>`).join("")}</div>
+      <div class="calgrid">${cells}</div>
+      <p class="calnote">${note}</p>
+    </div>
+    <div class="events-panel"><div class="ev-head"><h2>${esc(selName)}</h2></div><div class="ev-list" id="cal-day" aria-live="polite">${dayBody}</div></div>`;
+  bindEventRows($("#cal-day"), shown);
+  const step = dir => { current.month = dayKey(new Date(y, mo + dir, 1)); render(); };
+  $("#cal-prev").addEventListener("click", () => step(-1));
+  $("#cal-next").addEventListener("click", () => step(1));
+  document.querySelectorAll(".cday[data-day]").forEach(b => b.addEventListener("click", () => { current.day = b.dataset.day; render(); }));
+}
+
 
 /* Auto-update: reload when index.html or data.js changes on the server */
 /* Kiosk version: update this and CHANGELOG.md with every release. */
-const KIOSK_VERSION = "2.4.0";
+const KIOSK_VERSION = "2.5.0";
 document.getElementById("kiosk-version").textContent = "v" + KIOSK_VERSION;
 const UPDATE_CHECK_MINUTES = 15;
 let updatePending = false, siteSig = null;

@@ -1,0 +1,40 @@
+name: Update upcoming events
+
+on:
+  schedule:
+    - cron: "35 6 * * *"   # nightly, about 2:35 AM Eastern (time is UTC)
+  workflow_dispatch:        # "Run workflow" button for a manual update
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-upcoming
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Read the LMC calendar for the next two months
+        run: node scripts/fetch-events.mjs
+        env:
+          DAYS_AHEAD: "62"
+          OUT: upcoming.json
+      - name: Save upcoming.json if it changed
+        run: |
+          if git diff --quiet -- upcoming.json && git ls-files --error-unmatch upcoming.json >/dev/null 2>&1; then
+            echo "No changes to upcoming.json"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          git add upcoming.json
+          git commit -m "Update upcoming events"
+          git pull --rebase
+          git push
