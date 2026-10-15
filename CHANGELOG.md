@@ -8,6 +8,11 @@ Versions use MAJOR.MINOR.PATCH. The current version shows in the kiosk footer an
 
 When you release a change, update `KIOSK_VERSION`, add an entry here, and start the commit message with the version, for example `v2.0.1: fix room for Financial Aid`.
 
+## v2.1.0 (2026-10-15)
+- Find a person opens with Todd Center faculty and staff, with a Todd Center / All of LMC switch and a "Show everyone at LMC" button at the end of the list
+- Search puts people in the Todd Center first, and last-name matches above first-name matches
+- Search shows how many matches there are, and fits more results above the keyboard
+
 ## v2.0.0 (2026-10-15)
 - Find a person lists everyone in the LMC directory, Benton Harbor first, with other campuses labeled and an A to Z bar
 - Directory refreshes nightly from the LMC website (`directory.json`, GitHub Action `Update directory`)

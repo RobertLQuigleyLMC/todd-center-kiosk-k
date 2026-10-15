@@ -80,7 +80,12 @@ main{overflow:hidden;position:relative}
 /* Sub-views */
 .vhead{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;margin-bottom:1rem}
 .vhead h2{margin:0;font-weight:900;font-size:clamp(1.8rem,3.4vw,3rem)}
-.vhead p{margin:0;color:var(--muted);font-size:clamp(1rem,1.4vw,1.3rem)}
+.vhead p{margin:.4rem 0 0;color:var(--muted);font-size:clamp(1rem,1.4vw,1.3rem)}
+.vhead{align-items:center}
+.seg{display:flex;flex:none;border:3px solid var(--ink);border-radius:999px;overflow:hidden}
+.seg button{border:0;background:var(--panel);padding:.7rem 1.5rem;font-size:clamp(1.05rem,1.6vw,1.45rem);font-weight:800}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.morebtn{margin-top:.6rem;width:100%;border:3px dashed var(--line);background:transparent;border-radius:10px;padding:clamp(1rem,1.6vw,1.4rem);font-size:clamp(1.1rem,1.7vw,1.5rem);font-weight:800;text-align:left}
 
 .chips{display:flex;flex-wrap:wrap;gap:.6rem;margin-bottom:1.2rem}
 #chips{position:sticky;top:calc(-1 * clamp(1rem,2.4vw,2.4rem));z-index:3;background:var(--bg);padding:.6rem 0}
@@ -205,6 +210,10 @@ main{overflow:hidden;position:relative}
 .ev-head h2{font-size:clamp(1.4rem,min(2vw,3.8vh),2.4rem)}
 /* Search + keyboard */
 .searchbox{display:flex;align-items:center;gap:1rem;background:var(--panel);border:3px solid var(--ink);border-radius:14px;padding:1rem 1.4rem;margin-bottom:1rem;min-height:4.4rem}
+.searchbox .count{flex:none;color:var(--muted);font-size:clamp(1rem,1.4vw,1.3rem);font-weight:600}
+.search-results .row{padding:clamp(.55rem,1vw,.8rem) clamp(1rem,1.8vw,1.6rem)}
+.search-results .row .n{font-size:clamp(1.2rem,1.9vw,1.7rem)}
+.search-results .room{font-size:clamp(1.4rem,2.4vw,2.2rem)}
 .searchbox .q{font-size:clamp(1.5rem,2.6vw,2.4rem);font-weight:800;min-height:1.2em}
 .searchbox .q:empty::before{content:"Start typing a name, office, or room";color:var(--muted);font-weight:600}
 .caret{display:inline-block;width:3px;height:1.1em;background:var(--red);vertical-align:-.15em;margin-left:2px;animation:blink 1s steps(1) infinite}
@@ -213,7 +222,7 @@ main{overflow:hidden;position:relative}
 .search-results{overflow-y:auto;min-height:0;padding-bottom:1rem}
 .kbd{background:var(--panel);border-radius:14px;padding:.8rem;display:flex;flex-direction:column;gap:.5rem}
 .kr{display:flex;gap:.5rem;justify-content:center}
-.k{flex:1 1 0;max-width:7.5rem;min-height:clamp(3.2rem,6vh,4.6rem);border:0;border-radius:10px;background:var(--key);font-size:clamp(1.3rem,2.2vw,2rem);font-weight:800}
+.k{flex:1 1 0;max-width:7.5rem;min-height:clamp(3rem,5.2vh,4.2rem);border:0;border-radius:10px;background:var(--key);font-size:clamp(1.3rem,2.2vw,2rem);font-weight:800}
 .k:active{background:var(--line)}
 .k.wide{flex:4 1 0;max-width:none}
 .k.mid{flex:1.6 1 0;max-width:12rem;font-size:clamp(1rem,1.6vw,1.4rem)}
@@ -279,7 +288,7 @@ footer small{color:var(--muted);font-size:clamp(.85rem,1.1vw,1rem);max-width:40c
         Search for a person, office, or room number
       </button>
       <div class="tiles">
-        <button class="tile primary" data-go="people"><b>Find a person</b><span>Faculty and staff with offices or classes in the Todd Center</span></button>
+        <button class="tile primary" data-go="people"><b>Find a person</b><span>Faculty and staff in the Todd Center, or anyone at LMC</span></button>
         <button class="tile" data-go="offices"><b>Offices &amp; rooms</b><span>Offices, classrooms, study areas, and meeting rooms in the Todd Center</span></button>
         <button class="tile" data-go="programs"><b>Programs</b><span>Business, Computer Information Systems, Criminal Justice, Esports</span></button>
         <button class="tile" data-go="campus"><b>Elsewhere on campus</b><span>Financial Aid, Registration, Library, Bookstore, Tutoring</span></button>
@@ -298,14 +307,14 @@ footer small{color:var(--muted);font-size:clamp(.85rem,1.1vw,1rem);max-width:40c
     </section>
 
     <section class="view hidden" id="v-list">
-      <div class="vhead"><h2 id="list-title"></h2><p id="list-sub"></p></div>
+      <div class="vhead"><div><h2 id="list-title"></h2><p id="list-sub"></p></div><div class="seg hidden" id="scope" role="group" aria-label="Show people from"></div></div>
       <div class="chips" id="chips"></div>
       <div class="list" id="list"></div>
     </section>
 
     <section class="view hidden" id="v-search">
       <div class="search-wrap">
-        <div class="searchbox"><div style="flex:1"><span class="q" id="q"></span><span class="caret" aria-hidden="true"></span></div></div>
+        <div class="searchbox"><div style="flex:1"><span class="q" id="q"></span><span class="caret" aria-hidden="true"></span></div><span class="count" id="qcount" aria-live="polite"></span></div>
         <div class="search-results"><div class="list" id="results"></div></div>
         <div class="kbd" id="kbd"></div>
       </div>
@@ -534,11 +543,21 @@ function renderList(title, sub, items, opts = {}){
       if (row) v.scrollTo({top: v.scrollTop + row.getBoundingClientRect().top - v.getBoundingClientRect().top - $("#chips").offsetHeight - 12, behavior:"smooth"});
     }));
   } else ch.classList.add("hidden");
+  const sc = $("#scope");
+  if (opts.scope){
+    sc.classList.remove("hidden");
+    sc.innerHTML = [["todd","Todd Center"],["all","All of LMC"]].map(([k, l]) => `<button aria-pressed="${opts.scope === k}" data-scope="${k}">${l}</button>`).join("");
+    sc.querySelectorAll("[data-scope]").forEach(b => b.addEventListener("click", () => { current.scope = b.dataset.scope; render(); }));
+  } else sc.classList.add("hidden");
   const L = $("#list");
   if (opts.loading){ L.innerHTML = `<div class="empty">${dirError && !dirLoaded ? "The directory is unavailable right now." : "Loading the directory..."}</div>`; return; }
   if (!items.length){ L.innerHTML = `<div class="empty">${esc(opts.empty || "Nothing to show.")}</div>`; return; }
   L.innerHTML = items.map(rowHTML).join("");
   bindRows(L, items);
+  if (opts.more){
+    L.insertAdjacentHTML("beforeend", `<button class="morebtn" id="list-more">${esc(opts.more.label)}</button>`);
+    $("#list-more").addEventListener("click", opts.more.go);
+  }
 }
 
 /* ---------- Map ---------- */
@@ -703,17 +722,28 @@ function score(item, q){
   const hay = [item.name, item.title, item.dept, item.room, item.buildingName, item.campus, item.keywords, (item.programs||[]).join(" ")].join(" ").toLowerCase();
   const terms = q.toLowerCase().split(/\s+/).filter(Boolean);
   if (!terms.every(t => hay.includes(t) || hay.replace(/-/g,"").includes(t.replace(/-/g,"")))) return -1;
+  /* Name matches rank first (last name above first name), then room numbers.
+     Todd Center entries get a boost so people in this building come before
+     a name match elsewhere on campus. */
+  const n = item.name.toLowerCase(), words = n.split(/\s+/), last = words[words.length - 1];
+  const room = (item.room || "").toLowerCase().replace(/-/g, "");
   let s = 0;
-  const n = item.name.toLowerCase();
-  terms.forEach(t => { if (n.startsWith(t)) s += 5; if (n.split(" ").some(w => w.startsWith(t))) s += 3; });
-  if (item.bkey === "todd") s += 2;
+  terms.forEach(t => {
+    if (last.startsWith(t)) s += 10;
+    else if (words.some(w => w.startsWith(t))) s += 8;
+    else if (n.includes(t)) s += 4;
+    else if (room && t.replace(/-/g, "") && room.includes(t.replace(/-/g, ""))) s += 10;
+  });
+  if (n.startsWith(q.trim().toLowerCase())) s += 4;
+  if (item.bkey === "todd") s += 6;
   else if (item.campus === BH) s += 1;
   return s;
 }
 function renderSearch(){
   show("search");
   $("#q").textContent = query;
-  const R = $("#results");
+  const R = $("#results"), C = $("#qcount");
+  C.textContent = "";
   if (!query.trim()){
     R.innerHTML = `<div class="empty">Type a last name, an office like "Financial Aid," or a room number like "2214."</div>`;
     return;
@@ -723,6 +753,7 @@ function renderSearch(){
     R.innerHTML = `<div class="empty">Nothing matches "${esc(query)}." Check the spelling, try fewer letters, or ask at Career &amp; Workforce Education in ${HELP_DESK}.</div>`;
     return;
   }
+  C.textContent = items.length === 1 ? "1 match" : `${items.length === 60 ? "60+" : items.length} matches`;
   R.innerHTML = items.map(rowHTML).join("");
   bindRows(R, items);
 }
@@ -749,8 +780,14 @@ function render(){
   else if (s.view === "detail") renderDetail(s.item);
   else if (s.view === "map") renderMap();
   else if (s.view === "people"){
-    const people = DIR.filter(d => d.kind === "person");
-    renderList("Find a person", "Benton Harbor campus first, sorted by last name", grouped(people, byName), {letters:true, loading:!dirLoaded});
+    const scope = s.scope || "todd";
+    const people = DIR.filter(d => d.kind === "person" && (scope === "all" || d.bkey === "todd"));
+    if (scope === "all")
+      renderList("Find a person", "Everyone in the LMC directory. Benton Harbor campus first, sorted by last name", grouped(people, byName), {letters:true, scope, loading:!dirLoaded});
+    else
+      renderList("Find a person", "Faculty and staff in the Todd Center, sorted by last name", people.sort(byName), {letters:true, scope, loading:!dirLoaded,
+        empty:"No one in the directory is listed in the Todd Center.",
+        more:{label:"Not listed here? Show everyone at LMC", go:() => { current.scope = "all"; render(); }}});
   } else if (s.view === "offices"){
     const items = [...DIR.filter(d => d.kind === "office" && d.bkey === "todd").sort((a,b) => a.name.localeCompare(b.name)), ...PLACES.map(p => ({...p, kind:"place", bkey:"todd", campus:BH, buildingName:"Todd Center"}))];
     renderList("Offices & rooms", "Everything in the Todd Center", items);
@@ -956,7 +993,7 @@ setInterval(renderEvents, 60 * 1000);
 
 /* Auto-update: reload when index.html or data.js changes on the server */
 /* Kiosk version: update this and CHANGELOG.md with every release. */
-const KIOSK_VERSION = "2.0.0";
+const KIOSK_VERSION = "2.1.0";
 document.getElementById("kiosk-version").textContent = "v" + KIOSK_VERSION;
 const UPDATE_CHECK_MINUTES = 15;
 let updatePending = false, siteSig = null;
