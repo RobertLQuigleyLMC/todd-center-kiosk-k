@@ -210,6 +210,8 @@ main{overflow:hidden;position:relative}
 .ev-head h2{font-size:clamp(1.4rem,min(2vw,3.8vh),2.4rem)}
 /* Search + keyboard */
 .searchbox{display:flex;align-items:center;gap:1rem;background:var(--panel);border:3px solid var(--ink);border-radius:14px;padding:1rem 1.4rem;margin-bottom:1rem;min-height:4.4rem}
+.searchrow{display:flex;align-items:center;gap:1rem;margin-bottom:1rem}
+.searchrow .searchbox{flex:1;margin-bottom:0}
 .searchbox .count{flex:none;color:var(--muted);font-size:clamp(1rem,1.4vw,1.3rem);font-weight:600}
 .search-results .row{padding:clamp(.55rem,1vw,.8rem) clamp(1rem,1.8vw,1.6rem)}
 .search-results .row .n{font-size:clamp(1.2rem,1.9vw,1.7rem)}
@@ -314,7 +316,10 @@ footer small{color:var(--muted);font-size:clamp(.85rem,1.1vw,1rem);max-width:40c
 
     <section class="view hidden" id="v-search">
       <div class="search-wrap">
-        <div class="searchbox"><div style="flex:1"><span class="q" id="q"></span><span class="caret" aria-hidden="true"></span></div><span class="count" id="qcount" aria-live="polite"></span></div>
+        <div class="searchrow">
+          <div class="searchbox"><div style="flex:1"><span class="q" id="q"></span><span class="caret" aria-hidden="true"></span></div><span class="count" id="qcount" aria-live="polite"></span></div>
+          <div class="seg" id="sscope" role="group" aria-label="Search in"></div>
+        </div>
         <div class="search-results"><div class="list" id="results"></div></div>
         <div class="kbd" id="kbd"></div>
       </div>
@@ -524,6 +529,11 @@ function grouped(items, sorter){
   names.forEach(n => { out.push({header:n}); out.push(...groups[n].sort(sorter)); });
   return out;
 }
+/* Todd Center / All of LMC switch, used by Find a person and Search. */
+function scopeSwitch(el, scope){
+  el.innerHTML = [["todd","Todd Center"],["all","All of LMC"]].map(([k, l]) => `<button aria-pressed="${scope === k}" data-scope="${k}">${l}</button>`).join("");
+  el.querySelectorAll("[data-scope]").forEach(b => b.addEventListener("click", () => { current.scope = b.dataset.scope; render(); }));
+}
 function renderList(title, sub, items, opts = {}){
   show("list");
   $("#list-title").textContent = title;
@@ -544,11 +554,8 @@ function renderList(title, sub, items, opts = {}){
     }));
   } else ch.classList.add("hidden");
   const sc = $("#scope");
-  if (opts.scope){
-    sc.classList.remove("hidden");
-    sc.innerHTML = [["todd","Todd Center"],["all","All of LMC"]].map(([k, l]) => `<button aria-pressed="${opts.scope === k}" data-scope="${k}">${l}</button>`).join("");
-    sc.querySelectorAll("[data-scope]").forEach(b => b.addEventListener("click", () => { current.scope = b.dataset.scope; render(); }));
-  } else sc.classList.add("hidden");
+  if (opts.scope){ sc.classList.remove("hidden"); scopeSwitch(sc, opts.scope); }
+  else sc.classList.add("hidden");
   const L = $("#list");
   if (opts.loading){ L.innerHTML = `<div class="empty">${dirError && !dirLoaded ? "The directory is unavailable right now." : "Loading the directory..."}</div>`; return; }
   if (!items.length){ L.innerHTML = `<div class="empty">${esc(opts.empty || "Nothing to show.")}</div>`; return; }
@@ -743,19 +750,31 @@ function renderSearch(){
   show("search");
   $("#q").textContent = query;
   const R = $("#results"), C = $("#qcount");
+  const scope = current.scope || "todd", inTodd = scope === "todd";
+  scopeSwitch($("#sscope"), scope);
   C.textContent = "";
   if (!query.trim()){
-    R.innerHTML = `<div class="empty">Type a last name, an office like "Financial Aid," or a room number like "2214."</div>`;
+    R.innerHTML = `<div class="empty">Type a last name, an office like "Financial Aid," or a room number like "2214."${inTodd ? " Showing the Todd Center. Touch All of LMC to search the whole college." : ""}</div>`;
     return;
   }
-  const items = ALL.map(i => [score(i, query), i]).filter(x => x[0] >= 0).sort((a,b) => b[0]-a[0] || a[1].name.localeCompare(b[1].name)).slice(0, 60).map(x => x[1]);
+  const all = ALL.map(i => [score(i, query), i]).filter(x => x[0] >= 0).sort((a,b) => b[0]-a[0] || a[1].name.localeCompare(b[1].name)).map(x => x[1]);
+  const here = all.filter(i => i.bkey === "todd");
+  const items = (inTodd ? here : all).slice(0, 60);
+  const elsewhere = all.length - here.length;
+  const moreBtn = inTodd && elsewhere
+    ? `<button class="morebtn" id="search-more">Show ${elsewhere === 1 ? "1 match" : elsewhere + " matches"} elsewhere at LMC</button>` : "";
   if (!items.length){
-    R.innerHTML = `<div class="empty">Nothing matches "${esc(query)}." Check the spelling, try fewer letters, or ask at Career &amp; Workforce Education in ${HELP_DESK}.</div>`;
-    return;
+    R.innerHTML = inTodd && elsewhere
+      ? `<div class="empty">Nothing in the Todd Center matches "${esc(query)}."</div>${moreBtn}`
+      : `<div class="empty">Nothing matches "${esc(query)}." Check the spelling, try fewer letters, or ask at Career &amp; Workforce Education in ${HELP_DESK}.</div>`;
+  } else {
+    const n = items.length === 1 ? "1 match" : `${items.length === 60 ? "60+" : items.length} matches`;
+    C.textContent = inTodd ? n + " in the Todd Center" : n;
+    R.innerHTML = items.map(rowHTML).join("") + moreBtn;
+    bindRows(R, items);
   }
-  C.textContent = items.length === 1 ? "1 match" : `${items.length === 60 ? "60+" : items.length} matches`;
-  R.innerHTML = items.map(rowHTML).join("");
-  bindRows(R, items);
+  const m = $("#search-more");
+  if (m) m.addEventListener("click", () => { current.scope = "all"; render(); });
 }
 
 function buildKeyboard(){
@@ -993,7 +1012,7 @@ setInterval(renderEvents, 60 * 1000);
 
 /* Auto-update: reload when index.html or data.js changes on the server */
 /* Kiosk version: update this and CHANGELOG.md with every release. */
-const KIOSK_VERSION = "2.1.0";
+const KIOSK_VERSION = "2.2.0";
 document.getElementById("kiosk-version").textContent = "v" + KIOSK_VERSION;
 const UPDATE_CHECK_MINUTES = 15;
 let updatePending = false, siteSig = null;
