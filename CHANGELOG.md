@@ -8,6 +8,10 @@ Versions use MAJOR.MINOR.PATCH. The current version shows in the kiosk footer an
 
 When you release a change, update `KIOSK_VERSION`, add an entry here, and start the commit message with the version, for example `v2.0.1: fix room for Financial Aid`.
 
+## v2.5.1 (2026-10-15)
+- Calendar updates are gentler on the LMC calendar site: a longer pause between requests for the upcoming events run, a longer wait when the site says to slow down, and one room lookup per recurring event instead of one per meeting
+- A day the calendar site won't return is skipped (the kiosk shows it as unavailable) instead of failing the whole update
+
 ## v2.5.0 (2026-10-15)
 - Upcoming events: "See upcoming events" on the home page opens a monthly calendar of Todd Center events; touch a day to see its events, and touch an event with a room to see it on the map
 - Upcoming events come from `upcoming.json`, filled nightly by the new GitHub Action `Update upcoming events` (about two months ahead)

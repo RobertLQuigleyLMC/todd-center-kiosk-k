@@ -26,6 +26,7 @@ jobs:
         env:
           DAYS_AHEAD: "62"
           OUT: upcoming.json
+          PAUSE_MS: "1500"
       - name: Save upcoming.json if it changed
         run: |
           if git diff --quiet -- upcoming.json && git ls-files --error-unmatch upcoming.json >/dev/null 2>&1; then
