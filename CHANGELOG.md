@@ -8,6 +8,10 @@ Versions use MAJOR.MINOR.PATCH. The current version shows in the kiosk footer an
 
 When you release a change, update `KIOSK_VERSION`, add an entry here, and start the commit message with the version, for example `v2.0.1: fix room for Financial Aid`.
 
+## v2.3.0 (2026-10-15)
+- Search bar removed from the home page; the tiles fill the space
+- When there are no more Todd Center events today, the events panel invites visitors to request a space, with a QR code to lakemichigancollege.edu/community/space-use (`qr-space-use.svg`)
+
 ## v2.2.0 (2026-10-15)
 - Search shows only the Todd Center by default, with a Todd Center / All of LMC switch and a button to show matches elsewhere at LMC
 

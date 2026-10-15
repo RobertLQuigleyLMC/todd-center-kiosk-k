@@ -196,12 +196,20 @@ main{overflow:hidden;position:relative}
 .ev-loc{color:var(--muted);font-size:clamp(1rem,1.3vw,1.2rem);margin-top:.25rem;font-weight:600}
 .ev-map{display:inline-block;margin-left:.6rem;background:var(--plate);color:var(--plate-ink);border-radius:999px;font-size:.8em;padding:.05em .7em;font-weight:800}
 .ev-det{font-size:clamp(.95rem,1.2vw,1.1rem);margin-top:.3rem;line-height:1.35}
+.ev-promo{margin:.4rem .5rem .5rem;padding:clamp(1rem,1.8vw,1.6rem);border-radius:12px;background:var(--plate);color:var(--plate-ink);display:flex;flex-direction:column;gap:1rem}
+.ev-promo h3{margin:0;font-weight:900;font-size:clamp(1.4rem,2.2vw,2rem);line-height:1.1}
+.ev-promo p{margin:0;font-size:clamp(1rem,1.4vw,1.3rem);line-height:1.4;opacity:.9}
+.ev-promo .qr{display:flex;align-items:center;gap:clamp(.8rem,1.4vw,1.2rem)}
+.ev-promo img{flex:none;width:clamp(130px,11vw,210px);height:auto;background:#fff;border-radius:8px;padding:6px}
+.ev-promo b{display:block;font-size:clamp(1.05rem,1.5vw,1.4rem);line-height:1.3}
+.ev-promo .url{margin-top:.5rem;font-weight:600;font-size:clamp(.9rem,1.15vw,1.1rem);line-height:1.3;opacity:.9}
+@media (max-height:820px){.ev-promo p{display:none}.ev-promo{gap:.7rem}}
 .ev-empty{padding:1rem .5rem;font-size:clamp(1.1rem,1.6vw,1.4rem);color:var(--muted);line-height:1.4}
 
 /* Home sizing fix: scale with screen height too, never let tiles shrink below their text */
 .search-launch{font-size:clamp(1.1rem,min(1.8vw,3.2vh),2rem);padding:clamp(.8rem,min(1.4vw,2.4vh),1.4rem) clamp(1rem,1.8vw,1.8rem)}
-.homemain{min-height:0;display:grid;grid-template-rows:auto minmax(min-content,1fr) auto;overflow-y:auto;overflow-x:hidden}
-.homemain .tiles{flex:none;min-height:auto;grid-auto-rows:1fr;margin-top:clamp(.7rem,min(1.4vw,2.2vh),1.4rem);gap:clamp(.7rem,min(1.4vw,2.2vh),1.4rem)}
+.homemain{min-height:0;display:grid;grid-template-rows:minmax(min-content,1fr) auto;overflow-y:auto;overflow-x:hidden}
+.homemain .tiles{flex:none;min-height:auto;grid-auto-rows:1fr;margin-top:0;gap:clamp(.7rem,min(1.4vw,2.2vh),1.4rem)}
 .homemain .tile{min-height:auto;justify-content:flex-start;gap:.5em;padding:clamp(.9rem,min(1.6vw,2.6vh),2.2rem)}
 .homemain .tile b{font-size:clamp(1.3rem,min(2.1vw,3.9vh),2.9rem);line-height:1.05}
 .homemain .tile span{font-size:clamp(.95rem,min(1.15vw,2.2vh),1.35rem);line-height:1.3}
@@ -285,10 +293,6 @@ footer small{color:var(--muted);font-size:clamp(.85rem,1.1vw,1rem);max-width:40c
     <section class="view" id="v-home">
       <div class="homegrid">
         <div class="homemain">
-      <button class="search-launch" data-go="search">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg>
-        Search for a person, office, or room number
-      </button>
       <div class="tiles">
         <button class="tile primary" data-go="people"><b>Find a person</b><span>Faculty and staff in the Todd Center, or anyone at LMC</span></button>
         <button class="tile" data-go="offices"><b>Offices &amp; rooms</b><span>Offices, classrooms, study areas, and meeting rooms in the Todd Center</span></button>
@@ -934,6 +938,13 @@ function todaysEvents(){
     .map(e => ({...e, now: e.start != null && e.start <= mins}));
 }
 
+/* Shown when there are no more events today. To change the link, regenerate qr-space-use.svg too. */
+const SPACE_PROMO = `<div class="ev-promo">
+  <h3>Host your event here</h3>
+  <p>Rooms at Lake Michigan College, including the Todd Center, can be requested for meetings, trainings, and community events.</p>
+  <div class="qr"><img src="qr-space-use.svg" alt="QR code to request a space">
+    <div><b>Scan with your phone camera to request a space.</b><div class="url">lakemichigancollege.edu/<wbr>community/<wbr>space-use</div></div></div>
+</div>`;
 function renderEvents(){
   const box = $("#events"); if (!box) return;
   const list = todaysEvents();
@@ -944,7 +955,7 @@ function renderEvents(){
   if (!eventsLoaded || !covered){
     h = `<div class="ev-empty">${eventsLoaded || eventsError ? "Today's events aren't available right now." : "Loading today's events..."}</div>`;
   } else if (!list.length){
-    h = `<div class="ev-empty">${today ? "That's all for today. Check back tomorrow." : "No events are scheduled in the Todd Center today."}</div>`;
+    h = `<div class="ev-empty">${today ? "That's all for today." : "No events are scheduled in the Todd Center today."}</div>${SPACE_PROMO}`;
   } else {
     h = list.map((e, i) => {
       const room = roomFromLocation(e.location);
@@ -1012,7 +1023,7 @@ setInterval(renderEvents, 60 * 1000);
 
 /* Auto-update: reload when index.html or data.js changes on the server */
 /* Kiosk version: update this and CHANGELOG.md with every release. */
-const KIOSK_VERSION = "2.2.0";
+const KIOSK_VERSION = "2.3.0";
 document.getElementById("kiosk-version").textContent = "v" + KIOSK_VERSION;
 const UPDATE_CHECK_MINUTES = 15;
 let updatePending = false, siteSig = null;
