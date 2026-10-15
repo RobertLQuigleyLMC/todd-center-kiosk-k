@@ -11,7 +11,8 @@
    ========================================================= */
 
 /* ---------- Today's events ----------
-   Paste the Google Sheet "Publish to web" CSV link between the quotes. */
+   Events come from the LMC calendar automatically (Todd Center rooms only).
+   Leave this empty. Only paste a Google Sheet CSV link here to use a sheet instead. */
 const EVENTS_CSV_URL = "";
 const EVENTS_REFRESH_MINUTES = 5;
 
