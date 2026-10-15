@@ -4,10 +4,16 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Todd Center Directory</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Overpass:wght@400;600;800;900&display=swap" rel="stylesheet">
+<meta name="color-scheme" content="only light">
+<link rel="preload" href="fonts/overpass-latin.woff2" as="font" type="font/woff2" crossorigin>
 <style>
+/* Overpass, kept in fonts/ so the kiosk does not depend on Google Fonts (SIL Open Font License, fonts/OFL.txt) */
+@font-face{font-family:"Overpass";font-style:normal;font-weight:100 900;font-display:swap;
+  src:url(fonts/overpass-latin.woff2) format("woff2");
+  unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Overpass";font-style:normal;font-weight:100 900;font-display:swap;
+  src:url(fonts/overpass-latin-ext.woff2) format("woff2");
+  unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
 :root{
   --bg:#E6EAED; --panel:#FFFFFF; --ink:#18212B; --muted:#55626F;
   --plate:#22303E; --plate-ink:#FFFFFF; --red:#A8192C; --red-ink:#FFFFFF;
@@ -16,18 +22,6 @@
   box-sizing:border-box;
   padding-top:env(safe-area-inset-top,0px);
   padding-bottom:env(safe-area-inset-bottom,0px);
-}
-@media (prefers-color-scheme:dark){
-  :root:not([data-theme="light"]){
-    --bg:#10151B; --panel:#1A222B; --ink:#EEF2F5; --muted:#9AA8B5;
-    --plate:#2C3B4A; --plate-ink:#FFFFFF; --red:#C8283D; --red-ink:#FFFFFF;
-    --line:#2E3A46; --key:#24303B; --focus:#6AA8FF; color-scheme:dark;
-  }
-}
-:root[data-theme="dark"]{
-  --bg:#10151B; --panel:#1A222B; --ink:#EEF2F5; --muted:#9AA8B5;
-  --plate:#2C3B4A; --plate-ink:#FFFFFF; --red:#C8283D; --red-ink:#FFFFFF;
-  --line:#2E3A46; --key:#24303B; --focus:#6AA8FF; color-scheme:dark;
 }
 *,*::before,*::after{box-sizing:inherit}
 html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
@@ -45,15 +39,15 @@ button:focus-visible{outline:4px solid var(--focus);outline-offset:3px}
 /* Header: the building sign */
 header{
   display:flex;align-items:flex-end;justify-content:space-between;gap:2rem;
-  padding:clamp(1rem,2.4vw,2.2rem) clamp(1.2rem,3vw,3rem) clamp(.8rem,1.6vw,1.4rem);
+  padding:clamp(.7rem,1.3vw,1.3rem) clamp(1.2rem,3vw,3rem) clamp(.6rem,1vw,1rem);
   border-bottom:6px solid var(--red);background:var(--panel);
 }
 .bldg{line-height:.9}
-.bldg h1{margin:0;font-weight:900;font-size:clamp(2.6rem,6vw,5.6rem);letter-spacing:-.02em}
-.bldg p{margin:.5rem 0 0;color:var(--muted);font-size:clamp(1rem,1.5vw,1.4rem);font-weight:600}
+.bldg h1{margin:0;font-weight:900;font-size:clamp(2rem,3.6vw,3.6rem);letter-spacing:-.02em}
+.bldg p{margin:.35rem 0 0;color:var(--muted);font-size:clamp(.95rem,1.25vw,1.2rem);font-weight:600}
 .clock{text-align:right;line-height:1}
-.clock .t{font-weight:800;font-size:clamp(2rem,4vw,3.6rem);font-variant-numeric:tabular-nums}
-.clock .d{color:var(--muted);font-size:clamp(1rem,1.4vw,1.3rem);margin-top:.4rem;font-weight:600}
+.clock .t{font-weight:800;font-size:clamp(1.6rem,2.6vw,2.6rem);font-variant-numeric:tabular-nums}
+.clock .d{color:var(--muted);font-size:clamp(.95rem,1.25vw,1.2rem);margin-top:.3rem;font-weight:600}
 
 main{overflow:hidden;position:relative}
 .view{position:absolute;inset:0;overflow-y:auto;padding:clamp(1rem,2.4vw,2.4rem) clamp(1.2rem,3vw,3rem)}
@@ -1023,7 +1017,7 @@ setInterval(renderEvents, 60 * 1000);
 
 /* Auto-update: reload when index.html or data.js changes on the server */
 /* Kiosk version: update this and CHANGELOG.md with every release. */
-const KIOSK_VERSION = "2.3.0";
+const KIOSK_VERSION = "2.3.1";
 document.getElementById("kiosk-version").textContent = "v" + KIOSK_VERSION;
 const UPDATE_CHECK_MINUTES = 15;
 let updatePending = false, siteSig = null;

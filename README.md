@@ -34,6 +34,7 @@ Current version: see `CHANGELOG.md` (also shown in the kiosk footer).
 | `directory.json` | People and offices from the LMC website | No, updated nightly by the `Update directory` Action |
 | `events.json` | Today's Todd Center events from the LMC calendar | No, updated every 30 minutes by the `Update Todd Center events` Action |
 | `maps/` | Floor plans and room positions for the Main Building, Hanson, Welch, and South Haven | Only if building plans change |
+| `fonts/` | The Overpass font (SIL Open Font License, see `fonts/OFL.txt`) | No |
 | `qr-space-use.svg` | QR code for the space request page, shown when there are no events | Only if the link changes (make a new QR code with the same file name) |
 | `floor-ground.jpg`, `floor-second.jpg` | Todd Center floor plans | Only if building plans change |
 | `scripts/` | The scripts the Actions run | Only if the LMC website changes |
