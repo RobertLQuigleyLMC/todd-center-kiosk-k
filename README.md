@@ -36,6 +36,7 @@ Current version: see `CHANGELOG.md` (also shown in the kiosk footer).
 | `upcoming.json` | Todd Center events for about the next two months, for the Upcoming events calendar | No, updated nightly by the `Update upcoming events` Action |
 | `maps/` | Floor plans and room positions for the Main Building, Hanson, Welch, and South Haven | Only if building plans change |
 | `fonts/` | The Overpass font (SIL Open Font License, see `fonts/OFL.txt`) | No |
+| `lib/qrcode.js` | QR code maker used for the directions codes (MIT license, by Kazuhiko Arase) | No |
 | `qr-space-use.svg` | QR code for the space request page, shown when there are no events | Only if the link changes (make a new QR code with the same file name) |
 | `floor-ground.jpg`, `floor-second.jpg` | Todd Center floor plans | Only if building plans change |
 | `scripts/` | The scripts the Actions run | Only if the LMC website changes |
@@ -48,6 +49,7 @@ The kiosk shows what the LMC website directory says. To correct something withou
 - `DIRECTORY_FIX`: change a room, building, title, phone, or email for one name
 - `DIRECTORY_ADD`: people or offices missing from the directory
 - `PROGRAM_TAGS`: who appears under each program on the Programs screen
+- `BUILDING_DIRECTIONS`: directions from the Todd Center to another building, and a phone link shown as a QR code
 
 Quick corrections can go straight to the branch the site is built from, so they show up right away: switch to that branch, click the pencil icon on `data.js`, make the change, and commit. The kiosk picks it up within about 15 minutes, the next time nobody is using it. If an edit has a typo, the kiosk shows a message instead of the directory: open `data.js`, click **History**, and revert the last change.
 

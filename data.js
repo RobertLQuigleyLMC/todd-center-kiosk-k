@@ -68,6 +68,18 @@ const PROGRAM_TAGS = {
 const PROGRAMS = ["Business","CIS","Criminal Justice","Esports"];
 const PROGRAM_LABEL = {"Business":"Business","CIS":"Computer Information Systems","Criminal Justice":"Criminal Justice & Police Academy","Esports":"Esports"};
 
+/* ---------- Directions to other buildings ----------
+   Shown for people, offices, and maps in that building.
+   text:  how to get there from the Todd Center
+   phone: a link that opens directions on a phone, shown as a QR code
+   Building names: main, hanson, welch, mendel, beckwith, southhaven, niles */
+const BUILDING_DIRECTIONS = {
+  welch: {
+    text: "The Welch Center for Wine & Viticulture is a separate building at 2774 E Empire Ave, north of the Todd Center.",
+    phone: "https://www.google.com/maps/dir/?api=1&destination=Lake+Michigan+College+Welch+Center+for+Wine+%26+Viticulture%2C+2774+E+Empire+Ave%2C+Benton+Harbor%2C+MI+49022"
+  }
+};
+
 /* ---------------------------------------------------------
    BUILDING MAP DATA
    Positions are percentages of the floor plan page, taken

@@ -213,6 +213,12 @@ main{overflow:hidden;position:relative}
 .homemain .quick{margin-top:clamp(.7rem,min(1.4vw,2.2vh),1.4rem)}
 .homemain .qb{font-size:clamp(1rem,min(1.4vw,2.6vh),1.6rem);padding:clamp(.7rem,min(1.2vw,2vh),1.2rem)}
 .ev-head h2{font-size:clamp(1.4rem,min(2vw,3.8vh),2.4rem)}
+/* Directions on your phone (QR code) */
+.phonedir{display:flex;align-items:center;gap:clamp(1rem,1.6vw,1.4rem);margin-top:clamp(1rem,2vw,1.6rem);background:var(--panel);border-radius:14px;padding:clamp(1rem,1.6vw,1.4rem)}
+.phonedir .qrbox{flex:none;width:clamp(140px,11vw,200px);background:#fff;border-radius:8px;line-height:0}
+.phonedir .qrbox svg{width:100%;height:auto}
+.phonedir b{display:block;font-size:clamp(1.2rem,1.8vw,1.6rem);font-weight:900;line-height:1.2}
+.phonedir p{margin:.4rem 0 0;color:var(--muted);font-size:clamp(1rem,1.4vw,1.25rem);line-height:1.35}
 /* Upcoming events calendar */
 .ev-more{flex:none;display:flex;align-items:center;justify-content:space-between;gap:1rem;margin:.6rem clamp(.6rem,1.2vw,1rem) clamp(.6rem,1.2vw,1rem);border:3px solid var(--ink);background:transparent;border-radius:12px;padding:clamp(.7rem,1.2vw,1rem) clamp(1rem,1.6vw,1.4rem);font-size:clamp(1.05rem,1.6vw,1.45rem);font-weight:800;text-align:left}
 .ev-more svg{width:1.1em;height:1.1em;flex:none}
@@ -378,6 +384,7 @@ footer small{color:var(--muted);font-size:clamp(.85rem,1.1vw,1rem);max-width:40c
 </div>
 
 <script src="data.js"></script>
+<script src="lib/qrcode.js"></script>
 <script>
 if (typeof PLACES === "undefined" || typeof ROOMS === "undefined" || typeof DIRECTORY_FIX === "undefined"){
   document.body.innerHTML = '<div style="font:600 1.6rem/1.5 system-ui,sans-serif;padding:3rem;max-width:40ch">The kiosk could not read <b>data.js</b>. The most recent edit to that file has a typo. Undo it in GitHub (History, then revert) and the kiosk will recover.</div>';
@@ -668,6 +675,18 @@ function bindTabs(){
   requestAnimationFrame(fitMaps);
 }
 
+/* Directions to other buildings, from BUILDING_DIRECTIONS in data.js */
+const BDIR = typeof BUILDING_DIRECTIONS === "object" && BUILDING_DIRECTIONS ? BUILDING_DIRECTIONS : {};
+function qrSVG(text, label){
+  if (typeof qrcode !== "function" || !text) return "";
+  try { const q = qrcode(0, "M"); q.addData(text); q.make(); return q.createSvgTag({cellSize:1, margin:4, scalable:true, alt:label}); }
+  catch (err){ console.warn("QR code failed:", err.message || err); return ""; }
+}
+function phoneCard(bkey){
+  const d = BDIR[bkey], svg = d && qrSVG(d.phone, "QR code for directions to " + (BUILDING_NAME[bkey] || "this building"));
+  return svg ? `<div class="phonedir"><div class="qrbox">${svg}</div><div><b>Directions on your phone</b>
+    <p>Scan with your phone camera to open directions to the ${esc(BUILDING_NAME[bkey] || "building")} in Google Maps.</p></div></div>` : "";
+}
 const WING = {A:"A-wing", B:"B-wing", C:"C-wing", D:"D-wing", L:"L-wing", S:"S-wing"};
 function directions(loc, item){
   if (!loc) return "";
@@ -679,7 +698,8 @@ function directions(loc, item){
   const B = BUILDINGS[loc.b], fl = B.floors.find(f => f.n === loc.f);
   const head = [B.name, B.floors.length > 1 && fl ? fl.label.toLowerCase() : "", loc.wing ? (WING[loc.wing] || loc.wing + "-wing") : ""].filter(Boolean).join(", ") + ".";
   const approx = loc.approx ? "The exact room isn't marked on this floor plan, so the pin shows the general area. " : "";
-  const other = B.campus === BH ? "This is in another building on the Benton Harbor campus." : `This is at the ${B.name}.`;
+  const other = BDIR[loc.b] && BDIR[loc.b].text ? esc(BDIR[loc.b].text)
+    : B.campus === BH ? "This is in another building on the Benton Harbor campus." : `This is at the ${B.name}.`;
   return `<strong>${esc(head)}</strong> ${approx}${other}`;
 }
 
@@ -709,7 +729,8 @@ function renderDetail(item){
   const helpLoc = (!item.room && inTodd && item.kind === "person") ? (p => ({b:"todd", f:p.floor, x:p.x, y:p.y, area:p.area}))(ROOMS[HELP_DESK.replace("TC-","")]) : null;
   const mapLoc = loc || helpLoc;
   const custom = item.directions ? esc(item.directions) : "";
-  const dir = custom || (item.multi && mapLoc ? `<strong>On both floors.</strong> ${esc(mapLoc.area)}` : directions(mapLoc, item));
+  const away = !inTodd && BDIR[bkey] && BDIR[bkey].text ? `<strong>${esc(BUILDING_NAME[bkey] || "")}.</strong> ${esc(BDIR[bkey].text)}` : "";
+  const dir = custom || (item.multi && mapLoc ? `<strong>On both floors.</strong> ${esc(mapLoc.area)}` : directions(mapLoc, item) || away);
   if (dir) plate += `<div class="dir">${dir}</div>`;
 
   let dl = "";
@@ -721,7 +742,7 @@ function renderDetail(item){
   const note = item.kind === "person" && item.room
     ? `<div class="note">Office hours change each semester. Check the schedule posted outside the office or send an email to set a time.</div>` : "";
 
-  const left = `<div class="dleft"><div class="plate">${plate}</div>
+  const left = `<div class="dleft"><div class="plate">${plate}</div>${inTodd ? "" : phoneCard(bkey)}
     <div class="info"><h2>${esc(item.name)}</h2><div class="title">${esc(item.title || "")}</div>
     ${dl ? `<dl>${dl}</dl>` : ""}${note}</div></div>`;
 
@@ -752,7 +773,7 @@ function renderMap(){
   const B = BUILDINGS[bkey];
   if (current.floor == null) current.floor = bkey === "todd" ? YOU_ARE_HERE.floor : B.floors[0].n;
   const picker = MAP_ORDER.filter(k => BUILDINGS[k]).map(k => `<button class="chip" data-bk="${k}" aria-pressed="${k===bkey}">${esc(BUILDINGS[k].name)}</button>`).join("");
-  const info = MAP_INFO[bkey] || `<div class="dir">${esc(B.campus)}</div></div><div class="info"></div>`;
+  const info = MAP_INFO[bkey] || `<div class="dir">${esc(BDIR[bkey] && BDIR[bkey].text || B.campus)}</div></div>${phoneCard(bkey)}<div class="info"></div>`;
   const left = `<div class="dleft"><div class="chips mapchips">${picker}</div><div class="plate"><div class="bigroom" style="font-size:clamp(2.4rem,5vw,5rem)">${esc(B.name)}</div>
     <div class="where">${esc(B.floors.map(f => f.label).join(", "))}</div>${info}</div>`;
   $("#detail").innerHTML = left + mapHTML(bkey, current.floor, null, "");
@@ -1178,7 +1199,7 @@ function renderCalendar(){
 
 /* Auto-update: reload when index.html or data.js changes on the server */
 /* Kiosk version: update this and CHANGELOG.md with every release. */
-const KIOSK_VERSION = "2.5.1";
+const KIOSK_VERSION = "2.6.0";
 document.getElementById("kiosk-version").textContent = "v" + KIOSK_VERSION;
 const UPDATE_CHECK_MINUTES = 15;
 let updatePending = false, siteSig = null;
