@@ -68,6 +68,14 @@ const PROGRAM_TAGS = {
 const PROGRAMS = ["Business","CIS","Criminal Justice","Esports"];
 const PROGRAM_LABEL = {"Business":"Business","CIS":"Computer Information Systems","Criminal Justice":"Criminal Justice & Police Academy","Esports":"Esports"};
 
+/* ---------- Start screen video ----------
+   Plays muted on the right side of the start screen. Upload a new video to the
+   media folder with a NEW file name and change it here, so the kiosk does not keep
+   playing an old saved copy. Touching the video shows a QR code for VIDEO_LINK. */
+const ATTRACT_VIDEO = "media/LMC_CWE_Programs_Display_1080p_v2.mp4";
+const VIDEO_LINK = "https://www.lakemichigancollege.edu/contact-us";
+const VIDEO_LINK_TITLE = "Questions about our programs?";
+
 /* ---------- Directions to other buildings ----------
    Shown for people, offices, and maps in that building.
    text:  how to get there from the Todd Center

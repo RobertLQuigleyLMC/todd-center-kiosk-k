@@ -283,6 +283,26 @@ footer small{color:var(--muted);font-size:clamp(.85rem,1.1vw,1rem);max-width:40c
 .attract .bar{width:clamp(80px,12vw,180px);height:16px;background:var(--red);margin-bottom:2rem}
 .attract h1{margin:0;font-weight:900;font-size:clamp(4rem,13vw,13rem);line-height:.85;letter-spacing:-.03em}
 .attract p{font-size:clamp(1.4rem,2.8vw,2.6rem);margin:2rem 0 0;max-width:24ch;line-height:1.25;font-weight:600}
+/* With a video: text on the left, video on the right */
+.attract.has-video{display:grid;grid-template-columns:minmax(0,.72fr) minmax(0,1.28fr);align-items:center;gap:clamp(2rem,4vw,4rem)}
+.attract.has-video .a-left{display:flex;flex-direction:column}
+.attract.has-video h1{font-size:clamp(3.5rem,8vw,9rem)}
+.attract.has-video p{font-size:clamp(1.3rem,2.1vw,2.2rem)}
+.a-right{display:none}
+.attract.has-video .a-right{display:flex;flex-direction:column;gap:1rem;margin-top:clamp(3rem,6vh,5rem)}
+.a-video{position:relative;border-radius:16px;overflow:hidden;background:#000;aspect-ratio:16/9;box-shadow:0 10px 40px rgba(0,0,0,.35);cursor:pointer}
+.a-video video{display:block;width:100%;height:100%;object-fit:contain}
+.a-hint{align-self:flex-end;display:inline-flex;align-items:center;gap:.6rem;font-size:clamp(1rem,1.5vw,1.4rem);font-weight:700;opacity:.9}
+.a-hint svg{width:1.3em;height:1.3em}
+.a-pause{position:absolute;right:.8rem;bottom:.8rem;border:0;border-radius:999px;background:rgba(0,0,0,.65);color:#fff;font-weight:800;font-size:clamp(.95rem,1.2vw,1.15rem);padding:.5rem 1rem}
+.contact{position:absolute;inset:0;z-index:5;background:rgba(10,15,20,.7);display:flex;align-items:center;justify-content:center;padding:2rem}
+.contact .card{background:#fff;color:#18212B;border-radius:18px;border-top:12px solid var(--red);padding:clamp(1.5rem,3vw,3rem);display:flex;gap:clamp(1.5rem,3vw,3rem);align-items:center;max-width:min(1100px,92vw)}
+.contact .qrbox{flex:none;width:clamp(200px,18vw,340px);line-height:0}
+.contact .qrbox svg{width:100%;height:auto}
+.contact h2{margin:0;font-weight:900;font-size:clamp(1.8rem,3.2vw,3.2rem);line-height:1.05}
+.contact p{margin:1rem 0 0;font-size:clamp(1.15rem,1.8vw,1.7rem);line-height:1.35;max-width:none;font-weight:600}
+.contact .url{color:#55626F;font-size:clamp(1rem,1.4vw,1.3rem)}
+.contact .close{margin-top:1.6rem;border:3px solid #18212B;background:#18212B;color:#fff;border-radius:12px;padding:.8rem 1.8rem;font-size:clamp(1.1rem,1.7vw,1.5rem);font-weight:800}
 .attract .touch{margin-top:clamp(2rem,5vh,4rem);display:inline-flex;align-items:center;gap:1rem;font-size:clamp(1.2rem,2.2vw,2rem);font-weight:800;border:3px solid currentColor;border-radius:999px;padding:1rem 2rem;align-self:flex-start;animation:pulse 2.4s ease-in-out infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.55}}
 .attract .clockA{position:absolute;right:clamp(2rem,6vw,6rem);top:calc(clamp(2rem,6vw,6rem) + env(safe-area-inset-top,0px));text-align:right;font-weight:800;font-size:clamp(1.6rem,3vw,3rem);font-variant-numeric:tabular-nums}
@@ -377,10 +397,20 @@ footer small{color:var(--muted);font-size:clamp(.85rem,1.1vw,1rem);max-width:40c
 
 <div class="attract" id="attract" role="button" aria-label="Touch to start">
   <div class="clockA"><span id="timeA"></span><small id="dateA"></small></div>
-  <div class="bar"></div>
-  <h1>Todd<br>Center</h1>
-  <p>Find a classroom, office, or instructor.</p>
-  <span class="touch">Touch anywhere to start</span>
+  <div class="a-left">
+    <div class="bar"></div>
+    <h1>Todd<br>Center</h1>
+    <p>Find a classroom, office, or instructor.</p>
+    <span class="touch">Touch here to start</span>
+  </div>
+  <div class="a-right">
+    <div class="a-video" id="a-video" role="button" aria-label="Programs video. Touch for a QR code to contact Lake Michigan College.">
+      <video id="video" muted loop playsinline preload="auto" aria-hidden="true"></video>
+      <button class="a-pause" id="a-pause">Pause video</button>
+    </div>
+    <span class="a-hint"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3"/></svg>Touch the video to contact us</span>
+  </div>
+  <div class="contact hidden" id="contact"></div>
 </div>
 
 <script src="data.js"></script>
@@ -1199,7 +1229,7 @@ function renderCalendar(){
 
 /* Auto-update: reload when index.html or data.js changes on the server */
 /* Kiosk version: update this and CHANGELOG.md with every release. */
-const KIOSK_VERSION = "2.6.0";
+const KIOSK_VERSION = "2.7.0";
 document.getElementById("kiosk-version").textContent = "v" + KIOSK_VERSION;
 const UPDATE_CHECK_MINUTES = 15;
 let updatePending = false, siteSig = null;
@@ -1224,10 +1254,44 @@ setInterval(() => { const d = new Date(); if (d.getHours() === 3 && d.getMinutes
 let idleTimer;
 function resetIdle(){
   clearTimeout(idleTimer);
-  idleTimer = setTimeout(() => { goHome(); $("#attract").classList.remove("hidden"); if (updatePending) location.reload(); }, IDLE_SECONDS*1000);
+  idleTimer = setTimeout(() => { goHome(); setVideoPaused(false); showAttract(); if (updatePending) location.reload(); }, IDLE_SECONDS*1000);
 }
 ["pointerdown","keydown"].forEach(ev => document.addEventListener(ev, resetIdle, {passive:true}));
-$("#attract").addEventListener("pointerdown", e => { e.preventDefault(); $("#attract").classList.add("hidden"); resetIdle(); });
+/* Start screen video: plays only while the start screen shows. Touching it shows
+   a QR code for VIDEO_LINK; touching anywhere else starts the kiosk. */
+const VIDEO_SRC = typeof ATTRACT_VIDEO === "string" ? ATTRACT_VIDEO : "";
+const vid = $("#video");
+let videoPaused = false;
+if (VIDEO_SRC){
+  vid.src = VIDEO_SRC;
+  vid.addEventListener("error", () => { console.warn("Start screen video could not play:", VIDEO_SRC); $("#attract").classList.remove("has-video"); });
+  $("#attract").classList.add("has-video");
+}
+function playVideo(){ if (VIDEO_SRC && !videoPaused) vid.play().catch(() => {}); }
+function setVideoPaused(p){ videoPaused = p; $("#a-pause").textContent = p ? "Play video" : "Pause video"; if (p) vid.pause(); else playVideo(); }
+function showContact(){
+  const link = typeof VIDEO_LINK === "string" ? VIDEO_LINK : "";
+  const svg = qrSVG(link, "QR code for " + link);
+  if (!svg) return false;
+  $("#contact").innerHTML = `<div class="card"><div class="qrbox">${svg}</div><div>
+    <h2>${esc(typeof VIDEO_LINK_TITLE === "string" ? VIDEO_LINK_TITLE : "Contact Lake Michigan College")}</h2>
+    <p>Scan with your phone camera to contact Lake Michigan College.</p>
+    <p class="url">${esc(link.replace(/^https?:\/\/(www\.)?/, "").replace(/\//g, "/\u200b"))}</p>
+    <button class="close" data-close>Close</button></div></div>`;
+  $("#contact").classList.remove("hidden");
+  return true;
+}
+const hideContact = () => $("#contact").classList.add("hidden");
+function showAttract(){ hideContact(); $("#attract").classList.remove("hidden"); playVideo(); }
+function hideAttract(){ hideContact(); $("#attract").classList.add("hidden"); vid.pause(); }
+$("#attract").addEventListener("pointerdown", e => {
+  e.preventDefault();
+  if (e.target.closest("#a-pause")){ setVideoPaused(!videoPaused); return; }
+  if (e.target.closest("#contact")){ if (e.target.closest("[data-close]") || !e.target.closest(".card")) hideContact(); return; }
+  if (e.target.closest("#a-video") && showContact()) return;
+  hideAttract(); resetIdle();
+});
+playVideo();
 document.addEventListener("contextmenu", e => e.preventDefault());
 
 /* Physical keyboard support (for testing on a laptop) */

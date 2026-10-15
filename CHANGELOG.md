@@ -8,6 +8,10 @@ Versions use MAJOR.MINOR.PATCH. The current version shows in the kiosk footer an
 
 When you release a change, update `KIOSK_VERSION`, add an entry here, and start the commit message with the version, for example `v2.0.1: fix room for Financial Aid`.
 
+## v2.7.0 (2026-10-15)
+- Programs video on the right side of the start screen (`media/`, set by `ATTRACT_VIDEO` in `data.js`), muted, with a pause button; it plays only while the start screen is showing
+- Touching the video shows a QR code for the Contact Us page (`VIDEO_LINK` in `data.js`); touching anywhere else starts the kiosk as before
+
 ## v2.6.0 (2026-10-15)
 - Directions to other buildings: `BUILDING_DIRECTIONS` in `data.js` holds directions from the Todd Center and a phone link for each building, shown with a QR code on people, offices, and the building map
 - Welch Center added as the first building
