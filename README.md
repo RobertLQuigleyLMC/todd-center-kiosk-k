@@ -46,7 +46,7 @@ The kiosk shows what the LMC website directory says. To correct something withou
 - `DIRECTORY_ADD`: people or offices missing from the directory
 - `PROGRAM_TAGS`: who appears under each program on the Programs screen
 
-Quick corrections can go straight to `main` so they go live right away: switch to the `main` branch, click the pencil icon on `data.js`, make the change, and commit. The kiosk picks it up within about 15 minutes, the next time nobody is using it. If an edit has a typo, the kiosk shows a message instead of the directory: open `data.js`, click **History**, and revert the last change.
+Quick corrections can go straight to the branch the site is built from, so they show up right away: switch to that branch, click the pencil icon on `data.js`, make the change, and commit. The kiosk picks it up within about 15 minutes, the next time nobody is using it. If an edit has a typo, the kiosk shows a message instead of the directory: open `data.js`, click **History**, and revert the last change.
 
 ## Versions
 
