@@ -6,17 +6,19 @@ This is Kyle Kelly's working copy, forked from [jmbenak-lmc/todd-center-kiosk](h
 
 | Site | Address | Built from |
 |---|---|---|
-| This copy | https://kyleleroykelly.github.io/todd-center-kiosk/ | `main` branch of this repository |
+| This copy | https://kyleleroykelly.github.io/todd-center-kiosk/ | `kyle_dev` branch of this repository (for testing) |
 | Original | https://jmbenak-lmc.github.io/todd-center-kiosk/ | `main` branch of jmbenak-lmc/todd-center-kiosk |
 
 ## Branches
 
-- `kyle_dev`: day-to-day work. Changes here are not on the live site yet.
-- `main`: what the live site shows. Merge `kyle_dev` into `main` (with a pull request) to publish. The update Actions run on `main` and save fresh `directory.json` and `events.json` there.
+- `kyle_dev`: day-to-day work, and what this copy's site shows while it is being tested. Every push here updates the site within a few minutes.
+- `main`: the finished version. Merge `kyle_dev` into `main` (with a pull request) when it is ready.
+
+The scheduled update Actions only run on the repository's **default branch** and save fresh `directory.json` and `events.json` there. While the site is built from `kyle_dev`, make `kyle_dev` the default branch (**Settings > General > Default branch**) so its data stays current. Switch the default back to `main`, and Pages to `main`, once you merge.
 
 ## Setting up the live site (one time)
 
-1. **Turn on GitHub Pages.** In this repository go to **Settings > Pages**. Under **Build and deployment**, set **Source** to **Deploy from a branch**, pick **main** and **/ (root)**, and click **Save**. The site is live at the address above within a few minutes.
+1. **Turn on GitHub Pages.** In this repository go to **Settings > Pages**. Under **Build and deployment**, set **Source** to **Deploy from a branch**, pick the branch to show (`kyle_dev` while testing, `main` after) and **/ (root)**, and click **Save**. The site is live at the address above within a few minutes.
 2. **Turn on the Actions.** GitHub pauses scheduled Actions in a fork. Open the **Actions** tab and click **I understand my workflows, go ahead and enable them**. Then open **Update directory** and **Update Todd Center events** and click **Enable workflow** on each if asked. Use **Run workflow** once on each to get fresh data right away.
 3. **Check the Action permissions.** In **Settings > Actions > General**, under **Workflow permissions**, choose **Read and write permissions** so the Actions can save the data files.
 
