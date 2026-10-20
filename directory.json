@@ -1,6 +1,6 @@
 {
  "source": "https://www.lakemichigancollege.edu/directory",
- "count": 550,
+ "count": 552,
  "entries": [
   {
    "id": "akoo",
@@ -179,6 +179,17 @@
    "phone": ""
   },
   {
+   "id": "amoss",
+   "name": "Alison Moss",
+   "title": "Adjunct Faculty, Sociology",
+   "dept": "Arts & Science",
+   "campus": "Benton Harbor Campus",
+   "building": "Main Building",
+   "room": "",
+   "email": "amoss@lakemichigancollege.edu",
+   "phone": ""
+  },
+  {
    "id": "apscholka",
    "name": "Alton Pscholka",
    "title": "Vice President, Enrollment, Marketing, and Governmental Relations",
@@ -234,7 +245,7 @@
    "phone": "269-927-6713"
   },
   {
-   "id": "ascrima",
+   "id": "aescrima",
    "name": "Amy Scrima",
    "title": "Faculty, Psychology",
    "dept": "Arts & Sciences Education",
@@ -245,7 +256,7 @@
    "phone": "269-927-8777"
   },
   {
-   "id": "aescrima",
+   "id": "ascrima",
    "name": "Amy Scrima",
    "title": "Faculty, Psychology",
    "dept": "Arts & Sciences Education",
@@ -3270,17 +3281,6 @@
    "phone": "269-927-6701"
   },
   {
-   "id": "kbaptist",
-   "name": "Kelly Baptist",
-   "title": "Generalist, Bertrand Innovation Center",
-   "dept": "Niles Campus",
-   "campus": "Niles Campus",
-   "building": "Niles Campus",
-   "room": "",
-   "email": "kbaptist@lakemichigancollege.edu",
-   "phone": "(269) 695-2995"
-  },
-  {
    "id": "kdailey",
    "name": "Kelsey Dailey",
    "title": "Learning Designer",
@@ -3510,6 +3510,17 @@
    "room": "L-117",
    "email": "kzook@lakemichigancollege.edu",
    "phone": "269-927-6588"
+  },
+  {
+   "id": "kkelly",
+   "name": "Kyle Kelly",
+   "title": "Faculty, CIS and Esports Director",
+   "dept": "Career & Workforce Education",
+   "campus": "Benton Harbor Campus",
+   "building": "Todd Center",
+   "room": "TC-2214",
+   "email": "kkelly@lakemichigancollege.edu",
+   "phone": "269-927-4568"
   },
   {
    "id": "klewis",
@@ -4104,6 +4115,17 @@
    "room": "",
    "email": "mlowe@lakemichigancollege.edu",
    "phone": "(269) 927-8131"
+  },
+  {
+   "id": "mmowell",
+   "name": "Matthew Mowell",
+   "title": "Adjunct Faculty, Advanced Manufacturing",
+   "dept": "Advanced Manufacturing",
+   "campus": "Benton Harbor Campus",
+   "building": "Hanson Tech Center",
+   "room": "",
+   "email": "mmowell@lakemichigancollege.edu",
+   "phone": ""
   },
   {
    "id": "mcmcconomy",
@@ -6053,5 +6075,5 @@
    "phone": "269-927-8133"
   }
  ],
- "updated": "2026-10-19T14:39:14.965Z"
+ "updated": "2026-10-20T12:42:39.935Z"
 }
