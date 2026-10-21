@@ -2,11 +2,6 @@
   "source": "https://lakemichigancollege.events.prod.coursedog.com",
   "building": "Todd Center",
   "dates": [
-    "2026-10-16",
-    "2026-10-17",
-    "2026-10-18",
-    "2026-10-19",
-    "2026-10-20",
     "2026-10-21",
     "2026-10-22",
     "2026-10-23",
@@ -64,7 +59,12 @@
     "2026-12-14",
     "2026-12-15",
     "2026-12-16",
-    "2026-12-17"
+    "2026-12-17",
+    "2026-12-18",
+    "2026-12-19",
+    "2026-12-20",
+    "2026-12-21",
+    "2026-12-22"
   ],
   "events": [
     {
@@ -196,7 +196,27 @@
       "room": "TC-1413",
       "details": "",
       "url": "https://lakemichigancollege.events.prod.coursedog.com/events/LM3hUcUd3xCgf5f67uZf/onuyTPt62LdUgyxcd2HG15"
+    },
+    {
+      "date": "2026-12-18",
+      "start": "08:00",
+      "end": "18:00",
+      "title": "Project Management Accelerator",
+      "location": "TC-1413 (Classroom)",
+      "room": "TC-1413",
+      "details": "",
+      "url": "https://lakemichigancollege.events.prod.coursedog.com/events/wFSYKwKRbP739LCivhzW/mHGQfU4BKBCFx8Nfw06F"
+    },
+    {
+      "date": "2026-12-22",
+      "start": "18:00",
+      "end": "21:00",
+      "title": "Project Management Accelerator",
+      "location": "TC-1413 (Classroom)",
+      "room": "TC-1413",
+      "details": "",
+      "url": "https://lakemichigancollege.events.prod.coursedog.com/events/LM3hUcUd3xCgf5f67uZf/onuyTPt62LdUgyxcd2HG16"
     }
   ],
-  "updated": "2026-10-16T11:53:25.736Z"
+  "updated": "2026-10-21T12:18:56.010Z"
 }

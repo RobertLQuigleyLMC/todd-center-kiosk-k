@@ -1,6 +1,6 @@
 {
  "source": "https://www.lakemichigancollege.edu/directory",
- "count": 553,
+ "count": 552,
  "entries": [
   {
    "id": "akoo",
@@ -3281,17 +3281,6 @@
    "phone": "269-927-6701"
   },
   {
-   "id": "kbaptist",
-   "name": "Kelly Baptist",
-   "title": "Generalist, Bertrand Innovation Center",
-   "dept": "Niles Campus",
-   "campus": "Niles Campus",
-   "building": "Niles Campus",
-   "room": "",
-   "email": "kbaptist@lakemichigancollege.edu",
-   "phone": "(269) 695-2995"
-  },
-  {
    "id": "kdailey",
    "name": "Kelsey Dailey",
    "title": "Learning Designer",
@@ -3455,17 +3444,6 @@
    "room": "",
    "email": "klovhoiden@lakemichigancollege.edu",
    "phone": "(269) 927-4556"
-  },
-  {
-   "id": "kkozel",
-   "name": "Kristen Kozel",
-   "title": "Coordinator, Testing and Tutoring Services",
-   "dept": "Learning Assistance & Testing",
-   "campus": "Benton Harbor Campus",
-   "building": "Main Building",
-   "room": "",
-   "email": "kkozel@lakemichigancollege.edu",
-   "phone": ""
   },
   {
    "id": "robinson",
@@ -3851,6 +3829,17 @@
    "room": "L-310",
    "email": "lamado@lakemichigancollege.edu",
    "phone": "269-927-4951"
+  },
+  {
+   "id": "lschumacher",
+   "name": "Luisa Schumacher",
+   "title": "Specialist, AI Enablement",
+   "dept": "Information Technologies",
+   "campus": "Benton Harbor Campus",
+   "building": "Main Building",
+   "room": "",
+   "email": "lschumacher@lakemichigancollege.edu",
+   "phone": ""
   },
   {
    "id": "lford",
@@ -4426,17 +4415,6 @@
   },
   {
    "id": "4",
-   "name": "Mr. Mark Weber",
-   "title": "Board Member",
-   "dept": "Board of Trustees",
-   "campus": "",
-   "building": "",
-   "room": "",
-   "email": "mweber@lakemichigancollege.edu",
-   "phone": ""
-  },
-  {
-   "id": "ms.-alloyd-blackmon",
    "name": "Ms. Alloyd Blackmon",
    "title": "Board Member",
    "dept": "Board of Trustees",
@@ -4709,6 +4687,17 @@
    "room": "",
    "email": "pcunnington@lakemichigancollege.edu",
    "phone": "(269) 927-8774"
+  },
+  {
+   "id": "ptuck",
+   "name": "Paul Tuck",
+   "title": "Data Analyst",
+   "dept": "Information Technologies",
+   "campus": "Benton Harbor Campus",
+   "building": "Main Building",
+   "room": "",
+   "email": "ptuck@lakemichigancollege.edu",
+   "phone": ""
   },
   {
    "id": "pdavis",
@@ -6086,5 +6075,5 @@
    "phone": "269-927-8133"
   }
  ],
- "updated": "2026-10-15T11:02:44.730Z"
+ "updated": "2026-10-20T12:42:39.935Z"
 }
